@@ -88,20 +88,20 @@ OUTPUT(SimReversi.elf elf32-littlearm)
  .comment       0x00000000       0x2a ./reversi8_2018.o
                                  0x2b (size before relaxing)
 
-.debug_line     0x00000000      0x25d
+.debug_line     0x00000000      0x359
  .debug_line    0x00000000       0x47 ./init_b_2018.o
  .debug_line    0x00000047       0x4c ./patron_volteo_arm_c.o
- .debug_line    0x00000093      0x1ca ./reversi8_2018.o
+ .debug_line    0x00000093      0x2c6 ./reversi8_2018.o
 
-.debug_info     0x00000000      0x78f
+.debug_info     0x00000000      0x7d0
  .debug_info    0x00000000       0x6a ./init_b_2018.o
  .debug_info    0x0000006a       0x72 ./patron_volteo_arm_c.o
- .debug_info    0x000000dc      0x6b3 ./reversi8_2018.o
+ .debug_info    0x000000dc      0x6f4 ./reversi8_2018.o
 
-.debug_abbrev   0x00000000      0x1c6
+.debug_abbrev   0x00000000      0x1d3
  .debug_abbrev  0x00000000       0x14 ./init_b_2018.o
  .debug_abbrev  0x00000014       0x14 ./patron_volteo_arm_c.o
- .debug_abbrev  0x00000028      0x19e ./reversi8_2018.o
+ .debug_abbrev  0x00000028      0x1ab ./reversi8_2018.o
 
 .debug_aranges  0x00000000       0x60
  .debug_aranges
@@ -111,9 +111,9 @@ OUTPUT(SimReversi.elf elf32-littlearm)
  .debug_aranges
                 0x00000040       0x20 ./reversi8_2018.o
 
-.debug_macinfo  0x00000000     0x20fc
+.debug_macinfo  0x00000000     0x29d2
  .debug_macinfo
-                0x00000000     0x20fc ./reversi8_2018.o
+                0x00000000     0x29d2 ./reversi8_2018.o
 
 .debug_loc      0x00000000      0x1b8
  .debug_loc     0x00000000      0x1b8 ./reversi8_2018.o
@@ -123,9 +123,14 @@ OUTPUT(SimReversi.elf elf32-littlearm)
  .debug_pubnames
                 0x00000000      0x115 ./reversi8_2018.o
 
-.debug_str      0x00000000      0x1b1
- .debug_str     0x00000000      0x1b1 ./reversi8_2018.o
-                                0x1c4 (size before relaxing)
+.debug_pubtypes
+                0x00000000       0x1e
+ .debug_pubtypes
+                0x00000000       0x1e ./reversi8_2018.o
+
+.debug_str      0x00000000      0x1f7
+ .debug_str     0x00000000      0x1f7 ./reversi8_2018.o
+                                0x23e (size before relaxing)
 
 .debug_frame    0x00000000      0x168
  .debug_frame   0x00000000      0x168 ./reversi8_2018.o

@@ -13,23 +13,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .comment      0000002a  00000000  00000000  00009426  2**0
                   CONTENTS, READONLY
-  5 .debug_line   0000025d  00000000  00000000  00009450  2**0
+  5 .debug_line   00000359  00000000  00000000  00009450  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   0000078f  00000000  00000000  000096ad  2**0
+  6 .debug_info   000007d0  00000000  00000000  000097a9  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000001c6  00000000  00000000  00009e3c  2**0
+  7 .debug_abbrev 000001d3  00000000  00000000  00009f79  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_aranges 00000060  00000000  00000000  0000a008  2**3
+  8 .debug_aranges 00000060  00000000  00000000  0000a150  2**3
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_macinfo 000020fc  00000000  00000000  0000a068  2**0
+  9 .debug_macinfo 000029d2  00000000  00000000  0000a1b0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    000001b8  00000000  00000000  0000c164  2**0
+ 10 .debug_loc    000001b8  00000000  00000000  0000cb82  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_pubnames 00000115  00000000  00000000  0000c31c  2**0
+ 11 .debug_pubnames 00000115  00000000  00000000  0000cd3a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_str    000001b1  00000000  00000000  0000c431  2**0
+ 12 .debug_pubtypes 0000001e  00000000  00000000  0000ce4f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_frame  00000168  00000000  00000000  0000c5e4  2**2
+ 13 .debug_str    000001f7  00000000  00000000  0000ce6d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 14 .debug_frame  00000168  00000000  00000000  0000d064  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -92,7 +94,7 @@ LDMIA SP, {r4-r10,FP,SP,PC}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 0 indica CASILLA_VACIA, 1 indica FICHA_BLANCA y 2 indica FICHA_NEGRA
 // pone el tablero a cero y luego coloca las fichas centrales.
-void init_table(char tablero[][DIM], char candidatas[][DIM])
+void init_table(uint8_t tablero[][DIM], uint8_t candidatas[][DIM])
 {
  c000030:	e1a0c00d 	mov	ip, sp
  c000034:	e92dd800 	push	{fp, ip, lr, pc}
@@ -133,7 +135,7 @@ void init_table(char tablero[][DIM], char candidatas[][DIM])
  c000090:	e3530007 	cmp	r3, #7
  c000094:	dafffff1 	ble	c000060 <init_table+0x30>
 // pone el tablero a cero y luego coloca las fichas centrales.
-void init_table(char tablero[][DIM], char candidatas[][DIM])
+void init_table(uint8_t tablero[][DIM], uint8_t candidatas[][DIM])
 {
     int i, j;
 
@@ -280,7 +282,7 @@ void init_table(char tablero[][DIM], char candidatas[][DIM])
 // CUIDADO: si el compilador coloca esta variable en un registro, no funcionará.
 // Hay que definirla como "volatile" para forzar a que antes de cada uso la cargue de memoria
 
-void esperar_mov(char *ready)
+void esperar_mov(uint8_t *ready)
 {
  c000244:	e1a0c00d 	mov	ip, sp
  c000248:	e92dd800 	push	{fp, ip, lr, pc}
@@ -308,7 +310,7 @@ void esperar_mov(char *ready)
 // Además informa si la posición es válida y contiene alguna ficha.
 // Esto lo hace por referencia (en *posicion_valida)
 // Si devuelve un 0 no es válida o está vacia.
-char ficha_valida(char tablero[][DIM], char f, char c, int *posicion_valida)
+uint8_t ficha_valida(uint8_t tablero[][DIM], uint8_t f, uint8_t c, int *posicion_valida)
 {
  c000284:	e1a0c00d 	mov	ip, sp
  c000288:	e92dd800 	push	{fp, ip, lr, pc}
@@ -378,7 +380,7 @@ char ficha_valida(char tablero[][DIM], char f, char c, int *posicion_valida)
 // la función devuelve PATRON_ENCONTRADO (1) si encuentra patrón y NO_HAY_PATRON (0) en caso contrario
 // FA y CA son la fila y columna a analizar
 // longitud es un parámetro por referencia. Sirve para saber la longitud del patrón que se está analizando. Se usa para saber cuantas fichas habría que voltear
-int patron_volteo(char tablero[][DIM], int *longitud, char FA, char CA, char SF, char SC, char color)
+int patron_volteo(uint8_t tablero[][DIM], int *longitud, uint8_t FA, uint8_t CA, uint8_t SF, uint8_t SC, uint8_t color)
 {
  c000338:	e1a0c00d 	mov	ip, sp
  c00033c:	e92dd800 	push	{fp, ip, lr, pc}
@@ -390,7 +392,7 @@ int patron_volteo(char tablero[][DIM], int *longitud, char FA, char CA, char SF,
  c000354:	e54b3026 	strb	r3, [fp, #-38]	; 0xffffffda
     int posicion_valida; // indica si la posición es valida y contiene una ficha de algún jugador
     int patron; //indica si se ha encontrado un patrón o no
-    char casilla;   // casilla es la casilla que se lee del tablero
+    uint8_t casilla;   // casilla es la casilla que se lee del tablero
     FA = FA + SF;
  c000358:	e55b2025 	ldrb	r2, [fp, #-37]	; 0xffffffdb
  c00035c:	e5db3004 	ldrb	r3, [fp, #4]
@@ -491,7 +493,7 @@ int patron_volteo(char tablero[][DIM], int *longitud, char FA, char CA, char SF,
 // SF y SC son las cantidades a sumar para movernos en la dirección que toque
 // color indica el color de la pieza que se acaba de colocar
 // FA y CA son la fila y columna a analizar
-void voltear(char tablero[][DIM], char FA, char CA, char SF, char SC, int n, char color)
+void voltear(uint8_t tablero[][DIM], uint8_t FA, uint8_t CA, uint8_t SF, uint8_t SC, int n, uint8_t color)
 {
  c00044c:	e1a0c00d 	mov	ip, sp
  c000450:	e92dd800 	push	{fp, ip, lr, pc}
@@ -527,7 +529,7 @@ void voltear(char tablero[][DIM], char FA, char CA, char SF, char SC, int n, cha
  c0004ac:	e5db100c 	ldrb	r1, [fp, #12]
  c0004b0:	e7c21003 	strb	r1, [r2, r3]
 // FA y CA son la fila y columna a analizar
-void voltear(char tablero[][DIM], char FA, char CA, char SF, char SC, int n, char color)
+void voltear(uint8_t tablero[][DIM], uint8_t FA, uint8_t CA, uint8_t SF, uint8_t SC, int n, uint8_t color)
 {
     int i;
 
@@ -552,9 +554,9 @@ void voltear(char tablero[][DIM], char FA, char CA, char SF, char SC, int n, cha
 0c0004dc <actualizar_tablero>:
 // no comprueba que el movimiento realizado sea válido
 // f y c son la fila y columna a analizar
-// char vSF[DIM] = {-1,-1, 0, 1, 1, 1, 0,-1};
-// char vSC[DIM] = { 0, 1, 1, 1, 0,-1,-1,-1};
-int actualizar_tablero(char tablero[][DIM], char f, char c, char color)
+// uint8_t vSF[DIM] = {-1,-1, 0, 1, 1, 1, 0,-1};
+// uint8_t vSC[DIM] = { 0, 1, 1, 1, 0,-1,-1,-1};
+int actualizar_tablero(uint8_t tablero[][DIM], uint8_t f, uint8_t c, uint8_t color)
 {
  c0004dc:	e1a0c00d 	mov	ip, sp
  c0004e0:	e92dd800 	push	{fp, ip, lr, pc}
@@ -564,7 +566,7 @@ int actualizar_tablero(char tablero[][DIM], char f, char c, char color)
  c0004f0:	e54b1021 	strb	r1, [fp, #-33]	; 0xffffffdf
  c0004f4:	e54b2022 	strb	r2, [fp, #-34]	; 0xffffffde
  c0004f8:	e54b3023 	strb	r3, [fp, #-35]	; 0xffffffdd
-    char SF, SC; // cantidades a sumar para movernos en la dirección que toque
+    uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
     int i, flip, patron;
 
     for (i = 0; i < DIM; i++) // 0 es Norte, 1 NE, 2 E ...
@@ -619,9 +621,9 @@ int actualizar_tablero(char tablero[][DIM], char f, char c, char color)
  c000594:	e58d0008 	str	r0, [sp, #8]
  c000598:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
  c00059c:	ebffffaa 	bl	c00044c <voltear>
-int actualizar_tablero(char tablero[][DIM], char f, char c, char color)
+int actualizar_tablero(uint8_t tablero[][DIM], uint8_t f, uint8_t c, uint8_t color)
 {
-    char SF, SC; // cantidades a sumar para movernos en la dirección que toque
+    uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
     int i, flip, patron;
 
     for (i = 0; i < DIM; i++) // 0 es Norte, 1 NE, 2 E ...
@@ -651,7 +653,7 @@ int actualizar_tablero(char tablero[][DIM], char f, char c, char color)
 // NO    0
 // SI    1
 // CASILLA_OCUPADA 2
-int elegir_mov(char candidatas[][DIM], char tablero[][DIM], char *f, char *c)
+int elegir_mov(uint8_t candidatas[][DIM], uint8_t tablero[][DIM], uint8_t *f, uint8_t *c)
 {
  c0005d4:	e1a0c00d 	mov	ip, sp
  c0005d8:	e92dd800 	push	{fp, ip, lr, pc}
@@ -666,11 +668,11 @@ int elegir_mov(char candidatas[][DIM], char tablero[][DIM], char *f, char *c)
  c0005f4:	e3e03000 	mvn	r3, #0
  c0005f8:	e50b3020 	str	r3, [fp, #-32]	; 0xffffffe0
     int mc;      // almacena la columna del mejor movimiento encontrado
-    char mejor = 0; // almacena el mejor valor encontrado
+    uint8_t mejor = 0; // almacena el mejor valor encontrado
  c0005fc:	e3a03000 	mov	r3, #0
  c000600:	e54b3025 	strb	r3, [fp, #-37]	; 0xffffffdb
     int patron, longitud;
-    char SF, SC; // cantidades a sumar para movernos en la dirección que toque
+    uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
 
     // Recorremos todo el tablero comprobando dónde podemos mover
     // Comparamos la puntuación de los movimientos encontrados y nos quedamos con el mejor
@@ -819,7 +821,7 @@ int elegir_mov(char candidatas[][DIM], char tablero[][DIM], char *f, char *c)
  c000788:	e3530007 	cmp	r3, #7
  c00078c:	daffffa2 	ble	c00061c <elegir_mov+0x48>
     int patron, longitud;
-    char SF, SC; // cantidades a sumar para movernos en la dirección que toque
+    uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
 
     // Recorremos todo el tablero comprobando dónde podemos mover
     // Comparamos la puntuación de los movimientos encontrados y nos quedamos con el mejor
@@ -835,12 +837,12 @@ int elegir_mov(char candidatas[][DIM], char tablero[][DIM], char *f, char *c)
             }
         }
     }
-    *f = (char) mf;
+    *f = (uint8_t) mf;
  c0007a8:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
  c0007ac:	e20320ff 	and	r2, r3, #255	; 0xff
  c0007b0:	e51b3040 	ldr	r3, [fp, #-64]	; 0xffffffc0
  c0007b4:	e5c32000 	strb	r2, [r3]
-    *c = (char) mc;
+    *c = (uint8_t) mc;
  c0007b8:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
  c0007bc:	e20320ff 	and	r2, r3, #255	; 0xff
  c0007c0:	e51b3044 	ldr	r3, [fp, #-68]	; 0xffffffbc
@@ -862,7 +864,7 @@ int elegir_mov(char candidatas[][DIM], char tablero[][DIM], char *f, char *c)
 ////////////////////////////////////////////////////////////////////////////////
 // Cuenta el número de fichas de cada color.
 // Los guarda en la dirección b (blancas) y n (negras)
-void contar(char tablero[][DIM], int *b, int *n)
+void contar(uint8_t tablero[][DIM], int *b, int *n)
 {
  c0007ec:	e1a0c00d 	mov	ip, sp
  c0007f0:	e92dd800 	push	{fp, ip, lr, pc}
@@ -965,7 +967,7 @@ void contar(char tablero[][DIM], int *b, int *n)
 
 0c0008e8 <actualizar_candidatas>:
 
-void actualizar_candidatas(char candidatas[][DIM], char f, char c)
+void actualizar_candidatas(uint8_t candidatas[][DIM], uint8_t f, uint8_t c)
 {
  c0008e8:	e1a0c00d 	mov	ip, sp
  c0008ec:	e92dd800 	push	{fp, ip, lr, pc}
@@ -1229,7 +1231,7 @@ void reversi8()
 	 // Tablero candidatas: se usa para no explorar todas las posiciones del tablero
 	// sólo se exploran las que están alrededor de las fichas colocadas
 	 ////////////////////////////////////////////////////////////////////
-	char __attribute__ ((aligned (8))) candidatas[DIM][DIM] =
+	uint8_t __attribute__ ((aligned (8))) candidatas[DIM][DIM] =
  c000c50:	e59f3734 	ldr	r3, [pc, #1844]	; c00138c <reversi8+0x74c>
  c000c54:	e5d31000 	ldrb	r1, [r3]
  c000c58:	e59f372c 	ldr	r3, [pc, #1836]	; c00138c <reversi8+0x74c>
@@ -1604,7 +1606,7 @@ void reversi8()
  c0011fc:	e50b3034 	str	r3, [fp, #-52]	; 0xffffffcc
                   // (ha introducido un valor de movimiento con algún 8)
                   // y luego la máquina tampoco puede
-    char f, c;    // fila y columna elegidas por la máquina para su movimiento
+    uint8_t f, c;    // fila y columna elegidas por la máquina para su movimiento
 
     init_table(tablero, candidatas);
  c001200:	e24b307c 	sub	r3, fp, #124	; 0x7c
@@ -1721,7 +1723,7 @@ void reversi8()
  c001358:	ebfffd62 	bl	c0008e8 <actualizar_candidatas>
                   // (ha introducido un valor de movimiento con algún 8)
                   // y luego la máquina tampoco puede
-    char f, c;    // fila y columna elegidas por la máquina para su movimiento
+    uint8_t f, c;    // fila y columna elegidas por la máquina para su movimiento
 
     init_table(tablero, candidatas);
     while (fin == 0)
