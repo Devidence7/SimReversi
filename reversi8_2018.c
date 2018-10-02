@@ -51,7 +51,7 @@ const char vSC[DIM] = { 0, 1, 1, 1, 0,-1,-1,-1};
 ////////////////////////////////////////////////////////////////////
 // Tablero sin inicializar
 ////////////////////////////////////////////////////////////////////
-char __attribute__ ((aligned (8))) tablero[DIM][DIM] = {
+signed char __attribute__ ((aligned (8))) tablero[DIM][DIM] = {
 	        {CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA},
 	        {CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA},
 	        {CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA,CASILLA_VACIA},

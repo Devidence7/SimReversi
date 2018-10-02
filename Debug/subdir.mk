@@ -7,17 +7,20 @@ C_SRCS += \
 ../reversi8_2018.c 
 
 ASM_SRCS += \
-../init_b_2018.asm 
+../init_b_2018.asm \
+../patron_volteo_arm_c.asm 
 
 OBJS += \
 ./init_b_2018.o \
+./patron_volteo_arm_c.o \
 ./reversi8_2018.o 
 
 C_DEPS += \
 ./reversi8_2018.d 
 
 ASM_DEPS += \
-./init_b_2018.d 
+./init_b_2018.d \
+./patron_volteo_arm_c.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

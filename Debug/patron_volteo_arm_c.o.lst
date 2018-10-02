@@ -1,0 +1,26 @@
+   1              	# 1 "../patron_volteo_arm_c.asm"
+   1              	.global patron_volteo_arm_c
+   0              	
+   0              	
+   0              	
+   2              	@Prologo
+   3 0000 0DC0A0E1 	MOV IP,SP
+   4 0004 F0DF2DE9 	STMDB sp!, {r4-r10,FP,IP,LR,PC}
+   5 0008 04B04CE2 	SUB FP,IP,#4
+   6              	
+   7              	patron_volteo_arm_c:
+   8              	
+   9              	
+  10              	
+  11              	@Epilogo
+  12 000c 0CD04BE2 	SUB SP, FP, #12
+  13 0010 F0AF9DE8 	LDMIA SP, {r4-r10,FP,SP,PC}
+  14              	
+  15              	@Fin
+  16              	.end
+DEFINED SYMBOLS
+../patron_volteo_arm_c.asm:7      .text:0000000c patron_volteo_arm_c
+../patron_volteo_arm_c.asm:3      .text:00000000 $a
+                   .debug_aranges:0000000c $d
+
+NO UNDEFINED SYMBOLS
