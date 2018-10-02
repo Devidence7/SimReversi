@@ -17,7 +17,7 @@ FICHA_NEGRA = 2
 };
 
 // candidatas: indica las posiciones a explorar
-// Se usa para no explorar todo el tablero innecesariamente
+// Se usa para no explorar tod el tablero innecesariamente
 // Sus posibles valores son NO, SI, CASILLA_OCUPADA
 const uint8_t  NO              = 0;
 const uint8_t  SI              = 1;
@@ -273,7 +273,7 @@ int actualizar_tablero(uint8_t tablero[][DIM], uint8_t f, uint8_t c, uint8_t col
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-// Recorre todo el tablero comprobando en cada posición si se puede mover
+// Recorre tod el tablero comprobando en cada posición si se puede mover
 // En caso afirmativo, consulta la puntuación de la posición y si es la mejor
 // que se ha encontrado la guarda
 // Al acabar escribe el movimiento seleccionado en f y c
@@ -291,7 +291,7 @@ int elegir_mov(uint8_t candidatas[][DIM], uint8_t tablero[][DIM], uint8_t *f, ui
     int patron, longitud;
     uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
 
-    // Recorremos todo el tablero comprobando dónde podemos mover
+    // Recorremos tod el tablero comprobando dónde podemos mover
     // Comparamos la puntuación de los movimientos encontrados y nos quedamos con el mejor
     for (i=0; i<DIM; i++)
     {
@@ -347,7 +347,7 @@ void contar(uint8_t tablero[][DIM], int *b, int *n)
     *b = 0;
     *n = 0;
 
-    // recorremos todo el tablero contando las fichas de cada color
+    // recorremos tod el tablero contando las fichas de cada color
     for (i=0; i<DIM; i++)
     {
         for (j=0; j<DIM; j++)
