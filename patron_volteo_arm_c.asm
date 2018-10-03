@@ -1,19 +1,47 @@
 .global patron_volteo_arm_c
+.extern ficha_valida
 patron_volteo_arm_c:
 @Prologo
 MOV IP,SP
 STMDB sp!, {r4-r10,FP,IP,LR,PC}
 SUB FP,IP,#4
+
+mov r4, r0	@tablero
+mov r5, r1	@r5=*longitud
+mov r6, r2	@r6=FA
+mov r7, r3	@r7=CA
+
 @cargar los parametros r4-r6 con lo argumentos restantes
-ldr r4, [IP]
-ldr r5, [IP, #4]
-ldr r6, [IP, #8]
-mov r7, r0 @guardamos en r7 el tablero (dejando usable r0 para devolver al terminar la funcion)
+ldr r8, [IP]		@r8=SF
+ldr r9, [IP, #4]	@r9=SC
+ldr r10, [IP, #8]	@r10=color
+
+add r6, r6, r8		@FA = FA + SF
+add r7, r7, r9		@CA = CA + SC
+
+@Llamada a ficha_valida (primero paso de parametros)
+@a1=tablero (ya esta en r0)
+mov r1, r6 	@a2=FA
+mov r2, r7	@a3=CA
+sub sp, sp, #4	@dejamos un espacio en la pila para posicion_valida
+mov r3, sp	@r3=&posicion_valida
+bl ficha_valida		@devuelve en r0 el valor de "casilla"
+
+cmp r3, #1	@posicion_valida==1?
+bne	pos_invalida
+cmp r0, r10	@casilla==color?
+beq casilla_igual_color
+@(posicion_valida == 1) && (casilla != color)
+
+casilla_igual_color:
+@(posicion_valida == 1) && (casilla == color)
 
 
-@valor que devuelve la funcion
-mov r0, #1
+pos_invalida:
+@(posicion_valida != 1)
+mov r0, #0	@la funcion devuelve 0 (patron no encontrado)
 
+fin_patron_volteo_arm_c:
 @Epilogo
 SUB SP, FP, #40
 LDMIA SP, {r4-r10,FP,SP,PC}
