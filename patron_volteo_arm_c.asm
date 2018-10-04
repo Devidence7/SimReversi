@@ -36,20 +36,9 @@ cmp r3, #1			@posicion_valida==1?
 bne	pos_invalida
 cmp r0, r10			@casilla==color?
 beq casilla_igual_color
-mov r5, r0 			@(posicion_valida == 1) && (casilla != color)
+mov r5, r0
 
-cmp r5, #0
-bne patron_encontrado
-mov r0, #0
-bl fin_patron_volteo_arm_c
-
-patron_encontrado:
-mov r0, #1
-bl fin_patron_volteo_arm_c
-
-
-casilla_igual_color:
-@(posicion_valida == 1) && (casilla == color)
+@(posicion_valida == 1) && (casilla != color)
 ldr r0, [r5]
 add r0, r0, #1
 str r0, [r5]
@@ -59,12 +48,21 @@ mov r1, r5
 mov r2, r6
 mov r3, r7
 bl patron_volteo_arm_c
+bl fin_patron_volteo_arm_c
 
+patron_encontrado:
+mov r0, #1
+bl fin_patron_volteo_arm_c
+
+
+casilla_igual_color:
+@(posicion_valida == 1) && (casilla == color)
+cmp r5, #0
+bne patron_encontrado
 
 pos_invalida:
 @(posicion_valida != 1)
 mov r0, #0			@la funcion devuelve 0 (patron no encontrado)
-
 
 
 fin_patron_volteo_arm_c:

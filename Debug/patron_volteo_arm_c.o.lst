@@ -37,54 +37,52 @@
   33 004c 00309DE5 	ldr r3, [sp]		@guardamos en r3 el contenido de posicion_valida
   34 0050 04D08DE2 	add sp, sp, #4		@volvemos a dejar libre el hueco en la pila
   35 0054 010053E3 	cmp r3, #1			@posicion_valida==1?
-  36 0058 1000001A 	bne	pos_invalida
+  36 0058 0F00001A 	bne	pos_invalida
   37 005c 0A0050E1 	cmp r0, r10			@casilla==color?
-  38 0060 0600000A 	beq casilla_igual_color
-  39 0064 0050A0E1 	mov r5, r0 			@(posicion_valida == 1) && (casilla != color)
+  38 0060 0B00000A 	beq casilla_igual_color
+  39 0064 0050A0E1 	mov r5, r0
   40              	
-  41 0068 000055E3 	cmp r5, #0
-  42 006c 0100001A 	bne patron_encontrado
-  43 0070 0000A0E3 	mov r0, #0
-  44 0074 0A0000EB 	bl fin_patron_volteo_arm_c
+  41              	@(posicion_valida == 1) && (casilla != color)
+  42 0068 000095E5 	ldr r0, [r5]
+  43 006c 010080E2 	add r0, r0, #1
+  44 0070 000085E5 	str r0, [r5]
   45              	
-  46              	patron_encontrado:
-  47 0078 0100A0E3 	mov r0, #1
-  48 007c 080000EB 	bl fin_patron_volteo_arm_c
-  49              	
-  50              	
-  51              	casilla_igual_color:
-  52              	@(posicion_valida == 1) && (casilla == color)
-  53 0080 000095E5 	ldr r0, [r5]
-  54 0084 010080E2 	add r0, r0, #1
-  55 0088 000085E5 	str r0, [r5]
+  46 0074 0400A0E1 	mov r0, r4
+  47 0078 0510A0E1 	mov r1, r5
+  48 007c 0620A0E1 	mov r2, r6
+  49 0080 0730A0E1 	mov r3, r7
+  50 0084 FEFFFFEB 	bl patron_volteo_arm_c
+  51 0088 040000EB 	bl fin_patron_volteo_arm_c
+  52              	
+  53              	patron_encontrado:
+  54 008c 0100A0E3 	mov r0, #1
+  55 0090 020000EB 	bl fin_patron_volteo_arm_c
   56              	
-  57 008c 0400A0E1 	mov r0, r4
-  58 0090 0510A0E1 	mov r1, r5
-  59 0094 0620A0E1 	mov r2, r6
-  60 0098 0730A0E1 	mov r3, r7
-  61 009c FEFFFFEB 	bl patron_volteo_arm_c
+  57              	
+  58              	casilla_igual_color:
+  59              	@(posicion_valida == 1) && (casilla == color)
+  60 0094 000055E3 	cmp r5, #0
+  61 0098 FBFFFF1A 	bne patron_encontrado
   62              	
-  63              	
-  64              	pos_invalida:
-  65              	@(posicion_valida != 1)
-  66 00a0 0000A0E3 	mov r0, #0			@la funcion devuelve 0 (patron no encontrado)
+  63              	pos_invalida:
+  64              	@(posicion_valida != 1)
+  65 009c 0000A0E3 	mov r0, #0			@la funcion devuelve 0 (patron no encontrado)
+  66              	
   67              	
-  68              	
-  69              	
-  70              	fin_patron_volteo_arm_c:
-  71              	@Epilogo
-  72 00a4 28D04BE2 	SUB SP, FP, #40
-  73 00a8 F0AF9DE8 	LDMIA SP, {r4-r10,FP,SP,PC}
-  74              	
-  75              	@Fin
-  76              	.end
+  68              	fin_patron_volteo_arm_c:
+  69              	@Epilogo
+  70 00a0 28D04BE2 	SUB SP, FP, #40
+  71 00a4 F0AF9DE8 	LDMIA SP, {r4-r10,FP,SP,PC}
+  72              	
+  73              	@Fin
+  74              	.end
 DEFINED SYMBOLS
 ../patron_volteo_arm_c.asm:3      .text:00000000 patron_volteo_arm_c
 ../patron_volteo_arm_c.asm:5      .text:00000000 $a
-../patron_volteo_arm_c.asm:64     .text:000000a0 pos_invalida
-../patron_volteo_arm_c.asm:51     .text:00000080 casilla_igual_color
-../patron_volteo_arm_c.asm:46     .text:00000078 patron_encontrado
-../patron_volteo_arm_c.asm:70     .text:000000a4 fin_patron_volteo_arm_c
+../patron_volteo_arm_c.asm:63     .text:0000009c pos_invalida
+../patron_volteo_arm_c.asm:58     .text:00000094 casilla_igual_color
+../patron_volteo_arm_c.asm:68     .text:000000a0 fin_patron_volteo_arm_c
+../patron_volteo_arm_c.asm:53     .text:0000008c patron_encontrado
                    .debug_aranges:0000000c $d
 
 UNDEFINED SYMBOLS
