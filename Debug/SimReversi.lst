@@ -3,35 +3,35 @@ SimReversi.elf:     file format elf32-littlearm
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000013a0  0c000000  0c000000  00008000  2**2
+  0 .text         00001438  0c000000  0c000000  00008000  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .rodata       00000058  0c0013a0  0c0013a0  000093a0  2**3
+  1 .rodata       00000058  0c001438  0c001438  00009438  2**3
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  2 .bss          00000048  0c0013f8  0c0013f8  000093f8  2**3
+  2 .bss          00000048  0c001490  0c001490  00009490  2**3
                   ALLOC
-  3 .ARM.attributes 0000002e  00000000  00000000  000093f8  2**0
+  3 .ARM.attributes 0000002e  00000000  00000000  00009490  2**0
                   CONTENTS, READONLY
-  4 .comment      0000002a  00000000  00000000  00009426  2**0
+  4 .comment      0000002a  00000000  00000000  000094be  2**0
                   CONTENTS, READONLY
-  5 .debug_line   00000359  00000000  00000000  00009450  2**0
+  5 .debug_line   0000037f  00000000  00000000  000094e8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000007d0  00000000  00000000  000097a9  2**0
+  6 .debug_info   000007d0  00000000  00000000  00009867  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000001d3  00000000  00000000  00009f79  2**0
+  7 .debug_abbrev 000001d3  00000000  00000000  0000a037  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_aranges 00000060  00000000  00000000  0000a150  2**3
+  8 .debug_aranges 00000060  00000000  00000000  0000a210  2**3
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_macinfo 000029d2  00000000  00000000  0000a1b0  2**0
+  9 .debug_macinfo 000029d2  00000000  00000000  0000a270  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    000001b8  00000000  00000000  0000cb82  2**0
+ 10 .debug_loc    000001b8  00000000  00000000  0000cc42  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_pubnames 00000115  00000000  00000000  0000cd3a  2**0
+ 11 .debug_pubnames 00000115  00000000  00000000  0000cdfa  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_pubtypes 0000001e  00000000  00000000  0000ce4f  2**0
+ 12 .debug_pubtypes 0000001e  00000000  00000000  0000cf0f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_str    000001f7  00000000  00000000  0000ce6d  2**0
+ 13 .debug_str    000001f7  00000000  00000000  0000cf2d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_frame  00000168  00000000  00000000  0000d064  2**2
+ 14 .debug_frame  00000168  00000000  00000000  0000d124  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -68,8 +68,12 @@ Reset_Handler:
 stop: 	
  		B     	stop    	/*  end of program */
  c000014:	eafffffe 	b	c000014 <stop>
- c000018:	0c000c40 	.word	0x0c000c40
+ c000018:	0c000cd8 	.word	0x0c000cd8
+
+0c00001c <patron_volteo_arm_c>:
 .global patron_volteo_arm_c
+.extern ficha_valida
+patron_volteo_arm_c:
 @Prologo
 MOV IP,SP
  c00001c:	e1a0c00d 	mov	ip, sp
@@ -78,1676 +82,1779 @@ STMDB sp!, {r4-r10,FP,IP,LR,PC}
 SUB FP,IP,#4
  c000024:	e24cb004 	sub	fp, ip, #4
 
-0c000028 <patron_volteo_arm_c>:
-patron_volteo_arm_c:
+mov r4, r0			@tablero
+ c000028:	e1a04000 	mov	r4, r0
+mov r5, r1			@r5=*longitud
+ c00002c:	e1a05001 	mov	r5, r1
+mov r6, r2			@r6=FA
+ c000030:	e1a06002 	mov	r6, r2
+mov r7, r3			@r7=CA
+ c000034:	e1a07003 	mov	r7, r3
+
+@cargar los parametros r4-r6 con lo argumentos restantes
+ldr r8, [IP]		@r8=SF
+ c000038:	e59c8000 	ldr	r8, [ip]
+ldr r9, [IP, #4]	@r9=SC
+ c00003c:	e59c9004 	ldr	r9, [ip, #4]
+ldr r10, [IP, #8]	@r10=color
+ c000040:	e59ca008 	ldr	sl, [ip, #8]
+
+add r6, r6, r8		@FA = FA + SF
+ c000044:	e0866008 	add	r6, r6, r8
+add r7, r7, r9		@CA = CA + SC
+ c000048:	e0877009 	add	r7, r7, r9
+
+and r6, r6, #0xFF
+ c00004c:	e20660ff 	and	r6, r6, #255	; 0xff
+and r7, r7, #0xFF
+ c000050:	e20770ff 	and	r7, r7, #255	; 0xff
+
+@Llamada a ficha_valida (primero paso de parametros)
+@a1=tablero (ya esta en r0)
+mov r1, r6 			@a2=FA
+ c000054:	e1a01006 	mov	r1, r6
+mov r2, r7			@a3=CA
+ c000058:	e1a02007 	mov	r2, r7
+sub sp, sp, #4		@dejamos un espacio en la pila para posicion_valida
+ c00005c:	e24dd004 	sub	sp, sp, #4
+mov r3, sp			@r3=&posicion_valida
+ c000060:	e1a0300d 	mov	r3, sp
+bl ficha_valida		@devuelve en r0 el valor de "casilla"
+ c000064:	eb0000ac 	bl	c00031c <ficha_valida>
+
+ldr r3, [sp]		@guardamos en r3 el contenido de posicion_valida
+ c000068:	e59d3000 	ldr	r3, [sp]
+add sp, sp, #4		@volvemos a dejar libre el hueco en la pila
+ c00006c:	e28dd004 	add	sp, sp, #4
+cmp r3, #1			@posicion_valida==1?
+ c000070:	e3530001 	cmp	r3, #1
+bne	pos_invalida
+ c000074:	1a000010 	bne	c0000bc <pos_invalida>
+cmp r0, r10			@casilla==color?
+ c000078:	e150000a 	cmp	r0, sl
+beq casilla_igual_color
+ c00007c:	0a000006 	beq	c00009c <casilla_igual_color>
+mov r5, r0 			@(posicion_valida == 1) && (casilla != color)
+ c000080:	e1a05000 	mov	r5, r0
+
+cmp r5, #0
+ c000084:	e3550000 	cmp	r5, #0
+bne patron_encontrado
+ c000088:	1a000001 	bne	c000094 <patron_encontrado>
+mov r0, #0
+ c00008c:	e3a00000 	mov	r0, #0
+bl fin_patron_volteo_arm_c
+ c000090:	eb00000a 	bl	c0000c0 <fin_patron_volteo_arm_c>
+
+0c000094 <patron_encontrado>:
+
+patron_encontrado:
+mov r0, #1
+ c000094:	e3a00001 	mov	r0, #1
+bl fin_patron_volteo_arm_c
+ c000098:	eb000008 	bl	c0000c0 <fin_patron_volteo_arm_c>
+
+0c00009c <casilla_igual_color>:
+
+
+casilla_igual_color:
+@(posicion_valida == 1) && (casilla == color)
+ldr r0, [r5]
+ c00009c:	e5950000 	ldr	r0, [r5]
+add r0, r0, #1
+ c0000a0:	e2800001 	add	r0, r0, #1
+str r0, [r5]
+ c0000a4:	e5850000 	str	r0, [r5]
+
+mov r0, r4
+ c0000a8:	e1a00004 	mov	r0, r4
+mov r1, r5
+ c0000ac:	e1a01005 	mov	r1, r5
+mov r2, r6
+ c0000b0:	e1a02006 	mov	r2, r6
+mov r3, r7
+ c0000b4:	e1a03007 	mov	r3, r7
+bl patron_volteo_arm_c
+ c0000b8:	ebffffd7 	bl	c00001c <patron_volteo_arm_c>
+
+0c0000bc <pos_invalida>:
+
+
+pos_invalida:
+@(posicion_valida != 1)
+mov r0, #0			@la funcion devuelve 0 (patron no encontrado)
+ c0000bc:	e3a00000 	mov	r0, #0
+
+0c0000c0 <fin_patron_volteo_arm_c>:
 
 
 
+fin_patron_volteo_arm_c:
 @Epilogo
-SUB SP, FP, #12
- c000028:	e24bd00c 	sub	sp, fp, #12
+SUB SP, FP, #40
+ c0000c0:	e24bd028 	sub	sp, fp, #40	; 0x28
 LDMIA SP, {r4-r10,FP,SP,PC}
- c00002c:	e89daff0 	ldm	sp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, pc}
+ c0000c4:	e89daff0 	ldm	sp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, pc}
 
-0c000030 <init_table>:
+0c0000c8 <init_table>:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 0 indica CASILLA_VACIA, 1 indica FICHA_BLANCA y 2 indica FICHA_NEGRA
 // pone el tablero a cero y luego coloca las fichas centrales.
 void init_table(uint8_t tablero[][DIM], uint8_t candidatas[][DIM])
 {
- c000030:	e1a0c00d 	mov	ip, sp
- c000034:	e92dd800 	push	{fp, ip, lr, pc}
- c000038:	e24cb004 	sub	fp, ip, #4
- c00003c:	e24dd010 	sub	sp, sp, #16
- c000040:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
- c000044:	e50b101c 	str	r1, [fp, #-28]	; 0xffffffe4
+ c0000c8:	e1a0c00d 	mov	ip, sp
+ c0000cc:	e92dd800 	push	{fp, ip, lr, pc}
+ c0000d0:	e24cb004 	sub	fp, ip, #4
+ c0000d4:	e24dd010 	sub	sp, sp, #16
+ c0000d8:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c0000dc:	e50b101c 	str	r1, [fp, #-28]	; 0xffffffe4
     int i, j;
 
     for (i = 0; i < DIM; i++)
- c000048:	e3a03000 	mov	r3, #0
- c00004c:	e50b3010 	str	r3, [fp, #-16]
- c000050:	ea000013 	b	c0000a4 <init_table+0x74>
+ c0000e0:	e3a03000 	mov	r3, #0
+ c0000e4:	e50b3010 	str	r3, [fp, #-16]
+ c0000e8:	ea000013 	b	c00013c <init_table+0x74>
     {
         for (j = 0; j < DIM; j++)
- c000054:	e3a03000 	mov	r3, #0
- c000058:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
- c00005c:	ea00000a 	b	c00008c <init_table+0x5c>
+ c0000ec:	e3a03000 	mov	r3, #0
+ c0000f0:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c0000f4:	ea00000a 	b	c000124 <init_table+0x5c>
             tablero[i][j] = CASILLA_VACIA;
- c000060:	e51b3010 	ldr	r3, [fp, #-16]
- c000064:	e1a03183 	lsl	r3, r3, #3
- c000068:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
- c00006c:	e0822003 	add	r2, r2, r3
- c000070:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000074:	e0823003 	add	r3, r2, r3
- c000078:	e3a02000 	mov	r2, #0
- c00007c:	e5c32000 	strb	r2, [r3]
+ c0000f8:	e51b3010 	ldr	r3, [fp, #-16]
+ c0000fc:	e1a03183 	lsl	r3, r3, #3
+ c000100:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c000104:	e0822003 	add	r2, r2, r3
+ c000108:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c00010c:	e0823003 	add	r3, r2, r3
+ c000110:	e3a02000 	mov	r2, #0
+ c000114:	e5c32000 	strb	r2, [r3]
 {
     int i, j;
 
     for (i = 0; i < DIM; i++)
     {
         for (j = 0; j < DIM; j++)
- c000080:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000084:	e2833001 	add	r3, r3, #1
- c000088:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
- c00008c:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000090:	e3530007 	cmp	r3, #7
- c000094:	dafffff1 	ble	c000060 <init_table+0x30>
+ c000118:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c00011c:	e2833001 	add	r3, r3, #1
+ c000120:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c000124:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000128:	e3530007 	cmp	r3, #7
+ c00012c:	dafffff1 	ble	c0000f8 <init_table+0x30>
 // pone el tablero a cero y luego coloca las fichas centrales.
 void init_table(uint8_t tablero[][DIM], uint8_t candidatas[][DIM])
 {
     int i, j;
 
     for (i = 0; i < DIM; i++)
- c000098:	e51b3010 	ldr	r3, [fp, #-16]
- c00009c:	e2833001 	add	r3, r3, #1
- c0000a0:	e50b3010 	str	r3, [fp, #-16]
- c0000a4:	e51b3010 	ldr	r3, [fp, #-16]
- c0000a8:	e3530007 	cmp	r3, #7
- c0000ac:	daffffe8 	ble	c000054 <init_table+0x24>
+ c000130:	e51b3010 	ldr	r3, [fp, #-16]
+ c000134:	e2833001 	add	r3, r3, #1
+ c000138:	e50b3010 	str	r3, [fp, #-16]
+ c00013c:	e51b3010 	ldr	r3, [fp, #-16]
+ c000140:	e3530007 	cmp	r3, #7
+ c000144:	daffffe8 	ble	c0000ec <init_table+0x24>
 	    }
 	}
     }
 #endif
     // arriba hay versión alternativa
     tablero[3][3] = FICHA_BLANCA;
- c0000b0:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c0000b4:	e2833018 	add	r3, r3, #24
- c0000b8:	e3a02001 	mov	r2, #1
- c0000bc:	e5c32003 	strb	r2, [r3, #3]
+ c000148:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c00014c:	e2833018 	add	r3, r3, #24
+ c000150:	e3a02001 	mov	r2, #1
+ c000154:	e5c32003 	strb	r2, [r3, #3]
     tablero[4][4] = FICHA_BLANCA;
- c0000c0:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c0000c4:	e2833020 	add	r3, r3, #32
- c0000c8:	e3a02001 	mov	r2, #1
- c0000cc:	e5c32004 	strb	r2, [r3, #4]
+ c000158:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c00015c:	e2833020 	add	r3, r3, #32
+ c000160:	e3a02001 	mov	r2, #1
+ c000164:	e5c32004 	strb	r2, [r3, #4]
     tablero[3][4] = FICHA_NEGRA;
- c0000d0:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c0000d4:	e2833018 	add	r3, r3, #24
- c0000d8:	e3a02002 	mov	r2, #2
- c0000dc:	e5c32004 	strb	r2, [r3, #4]
+ c000168:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c00016c:	e2833018 	add	r3, r3, #24
+ c000170:	e3a02002 	mov	r2, #2
+ c000174:	e5c32004 	strb	r2, [r3, #4]
     tablero[4][3] = FICHA_NEGRA;
- c0000e0:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c0000e4:	e2833020 	add	r3, r3, #32
- c0000e8:	e3a02002 	mov	r2, #2
- c0000ec:	e5c32003 	strb	r2, [r3, #3]
+ c000178:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c00017c:	e2833020 	add	r3, r3, #32
+ c000180:	e3a02002 	mov	r2, #2
+ c000184:	e5c32003 	strb	r2, [r3, #3]
 
     candidatas[3][3] = CASILLA_OCUPADA;
- c0000f0:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c0000f4:	e2833018 	add	r3, r3, #24
- c0000f8:	e59f213c 	ldr	r2, [pc, #316]	; c00023c <init_table+0x20c>
- c0000fc:	e5d22000 	ldrb	r2, [r2]
- c000100:	e5c32003 	strb	r2, [r3, #3]
+ c000188:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c00018c:	e2833018 	add	r3, r3, #24
+ c000190:	e59f213c 	ldr	r2, [pc, #316]	; c0002d4 <init_table+0x20c>
+ c000194:	e5d22000 	ldrb	r2, [r2]
+ c000198:	e5c32003 	strb	r2, [r3, #3]
     candidatas[4][4] = CASILLA_OCUPADA;
- c000104:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000108:	e2833020 	add	r3, r3, #32
- c00010c:	e59f2128 	ldr	r2, [pc, #296]	; c00023c <init_table+0x20c>
- c000110:	e5d22000 	ldrb	r2, [r2]
- c000114:	e5c32004 	strb	r2, [r3, #4]
+ c00019c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0001a0:	e2833020 	add	r3, r3, #32
+ c0001a4:	e59f2128 	ldr	r2, [pc, #296]	; c0002d4 <init_table+0x20c>
+ c0001a8:	e5d22000 	ldrb	r2, [r2]
+ c0001ac:	e5c32004 	strb	r2, [r3, #4]
     candidatas[3][4] = CASILLA_OCUPADA;
- c000118:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c00011c:	e2833018 	add	r3, r3, #24
- c000120:	e59f2114 	ldr	r2, [pc, #276]	; c00023c <init_table+0x20c>
- c000124:	e5d22000 	ldrb	r2, [r2]
- c000128:	e5c32004 	strb	r2, [r3, #4]
+ c0001b0:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0001b4:	e2833018 	add	r3, r3, #24
+ c0001b8:	e59f2114 	ldr	r2, [pc, #276]	; c0002d4 <init_table+0x20c>
+ c0001bc:	e5d22000 	ldrb	r2, [r2]
+ c0001c0:	e5c32004 	strb	r2, [r3, #4]
     candidatas[4][3] = CASILLA_OCUPADA;
- c00012c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000130:	e2833020 	add	r3, r3, #32
- c000134:	e59f2100 	ldr	r2, [pc, #256]	; c00023c <init_table+0x20c>
- c000138:	e5d22000 	ldrb	r2, [r2]
- c00013c:	e5c32003 	strb	r2, [r3, #3]
+ c0001c4:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0001c8:	e2833020 	add	r3, r3, #32
+ c0001cc:	e59f2100 	ldr	r2, [pc, #256]	; c0002d4 <init_table+0x20c>
+ c0001d0:	e5d22000 	ldrb	r2, [r2]
+ c0001d4:	e5c32003 	strb	r2, [r3, #3]
 
     // casillas a explorar:
     candidatas[2][2] = SI;
- c000140:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000144:	e2833010 	add	r3, r3, #16
- c000148:	e59f20f0 	ldr	r2, [pc, #240]	; c000240 <init_table+0x210>
- c00014c:	e5d22000 	ldrb	r2, [r2]
- c000150:	e5c32002 	strb	r2, [r3, #2]
+ c0001d8:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0001dc:	e2833010 	add	r3, r3, #16
+ c0001e0:	e59f20f0 	ldr	r2, [pc, #240]	; c0002d8 <init_table+0x210>
+ c0001e4:	e5d22000 	ldrb	r2, [r2]
+ c0001e8:	e5c32002 	strb	r2, [r3, #2]
     candidatas[2][3] = SI;
- c000154:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000158:	e2833010 	add	r3, r3, #16
- c00015c:	e59f20dc 	ldr	r2, [pc, #220]	; c000240 <init_table+0x210>
- c000160:	e5d22000 	ldrb	r2, [r2]
- c000164:	e5c32003 	strb	r2, [r3, #3]
+ c0001ec:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0001f0:	e2833010 	add	r3, r3, #16
+ c0001f4:	e59f20dc 	ldr	r2, [pc, #220]	; c0002d8 <init_table+0x210>
+ c0001f8:	e5d22000 	ldrb	r2, [r2]
+ c0001fc:	e5c32003 	strb	r2, [r3, #3]
     candidatas[2][4] = SI;
- c000168:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c00016c:	e2833010 	add	r3, r3, #16
- c000170:	e59f20c8 	ldr	r2, [pc, #200]	; c000240 <init_table+0x210>
- c000174:	e5d22000 	ldrb	r2, [r2]
- c000178:	e5c32004 	strb	r2, [r3, #4]
+ c000200:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000204:	e2833010 	add	r3, r3, #16
+ c000208:	e59f20c8 	ldr	r2, [pc, #200]	; c0002d8 <init_table+0x210>
+ c00020c:	e5d22000 	ldrb	r2, [r2]
+ c000210:	e5c32004 	strb	r2, [r3, #4]
     candidatas[2][5] = SI;
- c00017c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000180:	e2833010 	add	r3, r3, #16
- c000184:	e59f20b4 	ldr	r2, [pc, #180]	; c000240 <init_table+0x210>
- c000188:	e5d22000 	ldrb	r2, [r2]
- c00018c:	e5c32005 	strb	r2, [r3, #5]
+ c000214:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000218:	e2833010 	add	r3, r3, #16
+ c00021c:	e59f20b4 	ldr	r2, [pc, #180]	; c0002d8 <init_table+0x210>
+ c000220:	e5d22000 	ldrb	r2, [r2]
+ c000224:	e5c32005 	strb	r2, [r3, #5]
     candidatas[3][2] = SI;
- c000190:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000194:	e2833018 	add	r3, r3, #24
- c000198:	e59f20a0 	ldr	r2, [pc, #160]	; c000240 <init_table+0x210>
- c00019c:	e5d22000 	ldrb	r2, [r2]
- c0001a0:	e5c32002 	strb	r2, [r3, #2]
+ c000228:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c00022c:	e2833018 	add	r3, r3, #24
+ c000230:	e59f20a0 	ldr	r2, [pc, #160]	; c0002d8 <init_table+0x210>
+ c000234:	e5d22000 	ldrb	r2, [r2]
+ c000238:	e5c32002 	strb	r2, [r3, #2]
     candidatas[3][5] = SI;
- c0001a4:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c0001a8:	e2833018 	add	r3, r3, #24
- c0001ac:	e59f208c 	ldr	r2, [pc, #140]	; c000240 <init_table+0x210>
- c0001b0:	e5d22000 	ldrb	r2, [r2]
- c0001b4:	e5c32005 	strb	r2, [r3, #5]
+ c00023c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000240:	e2833018 	add	r3, r3, #24
+ c000244:	e59f208c 	ldr	r2, [pc, #140]	; c0002d8 <init_table+0x210>
+ c000248:	e5d22000 	ldrb	r2, [r2]
+ c00024c:	e5c32005 	strb	r2, [r3, #5]
     candidatas[4][2] = SI;
- c0001b8:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c0001bc:	e2833020 	add	r3, r3, #32
- c0001c0:	e59f2078 	ldr	r2, [pc, #120]	; c000240 <init_table+0x210>
- c0001c4:	e5d22000 	ldrb	r2, [r2]
- c0001c8:	e5c32002 	strb	r2, [r3, #2]
+ c000250:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000254:	e2833020 	add	r3, r3, #32
+ c000258:	e59f2078 	ldr	r2, [pc, #120]	; c0002d8 <init_table+0x210>
+ c00025c:	e5d22000 	ldrb	r2, [r2]
+ c000260:	e5c32002 	strb	r2, [r3, #2]
     candidatas[4][5] = SI;
- c0001cc:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c0001d0:	e2833020 	add	r3, r3, #32
- c0001d4:	e59f2064 	ldr	r2, [pc, #100]	; c000240 <init_table+0x210>
- c0001d8:	e5d22000 	ldrb	r2, [r2]
- c0001dc:	e5c32005 	strb	r2, [r3, #5]
+ c000264:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000268:	e2833020 	add	r3, r3, #32
+ c00026c:	e59f2064 	ldr	r2, [pc, #100]	; c0002d8 <init_table+0x210>
+ c000270:	e5d22000 	ldrb	r2, [r2]
+ c000274:	e5c32005 	strb	r2, [r3, #5]
     candidatas[5][2] = SI;
- c0001e0:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c0001e4:	e2833028 	add	r3, r3, #40	; 0x28
- c0001e8:	e59f2050 	ldr	r2, [pc, #80]	; c000240 <init_table+0x210>
- c0001ec:	e5d22000 	ldrb	r2, [r2]
- c0001f0:	e5c32002 	strb	r2, [r3, #2]
+ c000278:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c00027c:	e2833028 	add	r3, r3, #40	; 0x28
+ c000280:	e59f2050 	ldr	r2, [pc, #80]	; c0002d8 <init_table+0x210>
+ c000284:	e5d22000 	ldrb	r2, [r2]
+ c000288:	e5c32002 	strb	r2, [r3, #2]
     candidatas[5][3] = SI;
- c0001f4:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c0001f8:	e2833028 	add	r3, r3, #40	; 0x28
- c0001fc:	e59f203c 	ldr	r2, [pc, #60]	; c000240 <init_table+0x210>
- c000200:	e5d22000 	ldrb	r2, [r2]
- c000204:	e5c32003 	strb	r2, [r3, #3]
+ c00028c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000290:	e2833028 	add	r3, r3, #40	; 0x28
+ c000294:	e59f203c 	ldr	r2, [pc, #60]	; c0002d8 <init_table+0x210>
+ c000298:	e5d22000 	ldrb	r2, [r2]
+ c00029c:	e5c32003 	strb	r2, [r3, #3]
     candidatas[5][4] = SI;
- c000208:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c00020c:	e2833028 	add	r3, r3, #40	; 0x28
- c000210:	e59f2028 	ldr	r2, [pc, #40]	; c000240 <init_table+0x210>
- c000214:	e5d22000 	ldrb	r2, [r2]
- c000218:	e5c32004 	strb	r2, [r3, #4]
+ c0002a0:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0002a4:	e2833028 	add	r3, r3, #40	; 0x28
+ c0002a8:	e59f2028 	ldr	r2, [pc, #40]	; c0002d8 <init_table+0x210>
+ c0002ac:	e5d22000 	ldrb	r2, [r2]
+ c0002b0:	e5c32004 	strb	r2, [r3, #4]
     candidatas[5][5] = SI;
- c00021c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000220:	e2833028 	add	r3, r3, #40	; 0x28
- c000224:	e59f2014 	ldr	r2, [pc, #20]	; c000240 <init_table+0x210>
- c000228:	e5d22000 	ldrb	r2, [r2]
- c00022c:	e5c32005 	strb	r2, [r3, #5]
+ c0002b4:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0002b8:	e2833028 	add	r3, r3, #40	; 0x28
+ c0002bc:	e59f2014 	ldr	r2, [pc, #20]	; c0002d8 <init_table+0x210>
+ c0002c0:	e5d22000 	ldrb	r2, [r2]
+ c0002c4:	e5c32005 	strb	r2, [r3, #5]
 }
- c000230:	e24bd00c 	sub	sp, fp, #12
- c000234:	e89d6800 	ldm	sp, {fp, sp, lr}
- c000238:	e12fff1e 	bx	lr
- c00023c:	0c0013a2 	.word	0x0c0013a2
- c000240:	0c0013a1 	.word	0x0c0013a1
+ c0002c8:	e24bd00c 	sub	sp, fp, #12
+ c0002cc:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c0002d0:	e12fff1e 	bx	lr
+ c0002d4:	0c00143a 	.word	0x0c00143a
+ c0002d8:	0c001439 	.word	0x0c001439
 
-0c000244 <esperar_mov>:
+0c0002dc <esperar_mov>:
 // Espera a que ready valga 1.
 // CUIDADO: si el compilador coloca esta variable en un registro, no funcionará.
 // Hay que definirla como "volatile" para forzar a que antes de cada uso la cargue de memoria
 
 void esperar_mov(uint8_t *ready)
 {
- c000244:	e1a0c00d 	mov	ip, sp
- c000248:	e92dd800 	push	{fp, ip, lr, pc}
- c00024c:	e24cb004 	sub	fp, ip, #4
- c000250:	e24dd008 	sub	sp, sp, #8
- c000254:	e50b0010 	str	r0, [fp, #-16]
+ c0002dc:	e1a0c00d 	mov	ip, sp
+ c0002e0:	e92dd800 	push	{fp, ip, lr, pc}
+ c0002e4:	e24cb004 	sub	fp, ip, #4
+ c0002e8:	e24dd008 	sub	sp, sp, #8
+ c0002ec:	e50b0010 	str	r0, [fp, #-16]
     while (*ready == 0) {};  // bucle de espera de respuestas hasta que el se modifique el valor de ready (hay que hacerlo manualmente)
- c000258:	e1a00000 	nop			; (mov r0, r0)
- c00025c:	e51b3010 	ldr	r3, [fp, #-16]
- c000260:	e5d33000 	ldrb	r3, [r3]
- c000264:	e3530000 	cmp	r3, #0
- c000268:	0afffffb 	beq	c00025c <esperar_mov+0x18>
+ c0002f0:	e1a00000 	nop			; (mov r0, r0)
+ c0002f4:	e51b3010 	ldr	r3, [fp, #-16]
+ c0002f8:	e5d33000 	ldrb	r3, [r3]
+ c0002fc:	e3530000 	cmp	r3, #0
+ c000300:	0afffffb 	beq	c0002f4 <esperar_mov+0x18>
 
     *ready = 0;  //una vez que pasemos el bucle volvemos a fijar ready a 0;
- c00026c:	e51b3010 	ldr	r3, [fp, #-16]
- c000270:	e3a02000 	mov	r2, #0
- c000274:	e5c32000 	strb	r2, [r3]
+ c000304:	e51b3010 	ldr	r3, [fp, #-16]
+ c000308:	e3a02000 	mov	r2, #0
+ c00030c:	e5c32000 	strb	r2, [r3]
 }
- c000278:	e24bd00c 	sub	sp, fp, #12
- c00027c:	e89d6800 	ldm	sp, {fp, sp, lr}
- c000280:	e12fff1e 	bx	lr
+ c000310:	e24bd00c 	sub	sp, fp, #12
+ c000314:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c000318:	e12fff1e 	bx	lr
 
-0c000284 <ficha_valida>:
+0c00031c <ficha_valida>:
 // Devuelve el contenido de la posición indicadas por la fila y columna actual.
 // Además informa si la posición es válida y contiene alguna ficha.
 // Esto lo hace por referencia (en *posicion_valida)
 // Si devuelve un 0 no es válida o está vacia.
 uint8_t ficha_valida(uint8_t tablero[][DIM], uint8_t f, uint8_t c, int *posicion_valida)
 {
- c000284:	e1a0c00d 	mov	ip, sp
- c000288:	e92dd800 	push	{fp, ip, lr, pc}
- c00028c:	e24cb004 	sub	fp, ip, #4
- c000290:	e24dd018 	sub	sp, sp, #24
- c000294:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
- c000298:	e50b3020 	str	r3, [fp, #-32]	; 0xffffffe0
- c00029c:	e1a03001 	mov	r3, r1
- c0002a0:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
- c0002a4:	e1a03002 	mov	r3, r2
- c0002a8:	e54b301a 	strb	r3, [fp, #-26]	; 0xffffffe6
+ c00031c:	e1a0c00d 	mov	ip, sp
+ c000320:	e92dd800 	push	{fp, ip, lr, pc}
+ c000324:	e24cb004 	sub	fp, ip, #4
+ c000328:	e24dd018 	sub	sp, sp, #24
+ c00032c:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c000330:	e50b3020 	str	r3, [fp, #-32]	; 0xffffffe0
+ c000334:	e1a03001 	mov	r3, r1
+ c000338:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
+ c00033c:	e1a03002 	mov	r3, r2
+ c000340:	e54b301a 	strb	r3, [fp, #-26]	; 0xffffffe6
 
     // ficha = tablero[f][c];
     // no puede accederse a tablero[f][c]
     // ya que algún índice puede ser negativo
 
     if ((f < DIM) && (f >= 0) && (c < DIM) && (c >= 0) && (tablero[f][c] != CASILLA_VACIA))
- c0002ac:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
- c0002b0:	e3530007 	cmp	r3, #7
- c0002b4:	8a000015 	bhi	c000310 <ficha_valida+0x8c>
- c0002b8:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
- c0002bc:	e3530007 	cmp	r3, #7
- c0002c0:	8a000012 	bhi	c000310 <ficha_valida+0x8c>
- c0002c4:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
- c0002c8:	e1a03183 	lsl	r3, r3, #3
- c0002cc:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
- c0002d0:	e0822003 	add	r2, r2, r3
- c0002d4:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
- c0002d8:	e7d23003 	ldrb	r3, [r2, r3]
- c0002dc:	e3530000 	cmp	r3, #0
- c0002e0:	0a00000a 	beq	c000310 <ficha_valida+0x8c>
+ c000344:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c000348:	e3530007 	cmp	r3, #7
+ c00034c:	8a000015 	bhi	c0003a8 <ficha_valida+0x8c>
+ c000350:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
+ c000354:	e3530007 	cmp	r3, #7
+ c000358:	8a000012 	bhi	c0003a8 <ficha_valida+0x8c>
+ c00035c:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c000360:	e1a03183 	lsl	r3, r3, #3
+ c000364:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c000368:	e0822003 	add	r2, r2, r3
+ c00036c:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
+ c000370:	e7d23003 	ldrb	r3, [r2, r3]
+ c000374:	e3530000 	cmp	r3, #0
+ c000378:	0a00000a 	beq	c0003a8 <ficha_valida+0x8c>
     {
         *posicion_valida = 1;
- c0002e4:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
- c0002e8:	e3a02001 	mov	r2, #1
- c0002ec:	e5832000 	str	r2, [r3]
+ c00037c:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c000380:	e3a02001 	mov	r2, #1
+ c000384:	e5832000 	str	r2, [r3]
         ficha = tablero[f][c];
- c0002f0:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
- c0002f4:	e1a03183 	lsl	r3, r3, #3
- c0002f8:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
- c0002fc:	e0822003 	add	r2, r2, r3
- c000300:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
- c000304:	e7d23003 	ldrb	r3, [r2, r3]
- c000308:	e54b300d 	strb	r3, [fp, #-13]
- c00030c:	ea000004 	b	c000324 <ficha_valida+0xa0>
+ c000388:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c00038c:	e1a03183 	lsl	r3, r3, #3
+ c000390:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c000394:	e0822003 	add	r2, r2, r3
+ c000398:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
+ c00039c:	e7d23003 	ldrb	r3, [r2, r3]
+ c0003a0:	e54b300d 	strb	r3, [fp, #-13]
+ c0003a4:	ea000004 	b	c0003bc <ficha_valida+0xa0>
     }
     else
     {
         *posicion_valida = 0;
- c000310:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
- c000314:	e3a02000 	mov	r2, #0
- c000318:	e5832000 	str	r2, [r3]
+ c0003a8:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c0003ac:	e3a02000 	mov	r2, #0
+ c0003b0:	e5832000 	str	r2, [r3]
         ficha = CASILLA_VACIA;
- c00031c:	e3a03000 	mov	r3, #0
- c000320:	e54b300d 	strb	r3, [fp, #-13]
+ c0003b4:	e3a03000 	mov	r3, #0
+ c0003b8:	e54b300d 	strb	r3, [fp, #-13]
     }
     return ficha;
- c000324:	e55b300d 	ldrb	r3, [fp, #-13]
+ c0003bc:	e55b300d 	ldrb	r3, [fp, #-13]
 }
- c000328:	e1a00003 	mov	r0, r3
- c00032c:	e24bd00c 	sub	sp, fp, #12
- c000330:	e89d6800 	ldm	sp, {fp, sp, lr}
- c000334:	e12fff1e 	bx	lr
+ c0003c0:	e1a00003 	mov	r0, r3
+ c0003c4:	e24bd00c 	sub	sp, fp, #12
+ c0003c8:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c0003cc:	e12fff1e 	bx	lr
 
-0c000338 <patron_volteo>:
+0c0003d0 <patron_volteo>:
 // color indica el color de la pieza que se acaba de colocar
 // la función devuelve PATRON_ENCONTRADO (1) si encuentra patrón y NO_HAY_PATRON (0) en caso contrario
 // FA y CA son la fila y columna a analizar
 // longitud es un parámetro por referencia. Sirve para saber la longitud del patrón que se está analizando. Se usa para saber cuantas fichas habría que voltear
 int patron_volteo(uint8_t tablero[][DIM], int *longitud, uint8_t FA, uint8_t CA, uint8_t SF, uint8_t SC, uint8_t color)
 {
- c000338:	e1a0c00d 	mov	ip, sp
- c00033c:	e92dd800 	push	{fp, ip, lr, pc}
- c000340:	e24cb004 	sub	fp, ip, #4
- c000344:	e24dd030 	sub	sp, sp, #48	; 0x30
- c000348:	e50b0020 	str	r0, [fp, #-32]	; 0xffffffe0
- c00034c:	e50b1024 	str	r1, [fp, #-36]	; 0xffffffdc
- c000350:	e54b2025 	strb	r2, [fp, #-37]	; 0xffffffdb
- c000354:	e54b3026 	strb	r3, [fp, #-38]	; 0xffffffda
+ c0003d0:	e1a0c00d 	mov	ip, sp
+ c0003d4:	e92dd800 	push	{fp, ip, lr, pc}
+ c0003d8:	e24cb004 	sub	fp, ip, #4
+ c0003dc:	e24dd030 	sub	sp, sp, #48	; 0x30
+ c0003e0:	e50b0020 	str	r0, [fp, #-32]	; 0xffffffe0
+ c0003e4:	e50b1024 	str	r1, [fp, #-36]	; 0xffffffdc
+ c0003e8:	e54b2025 	strb	r2, [fp, #-37]	; 0xffffffdb
+ c0003ec:	e54b3026 	strb	r3, [fp, #-38]	; 0xffffffda
     int posicion_valida; // indica si la posición es valida y contiene una ficha de algún jugador
     int patron; //indica si se ha encontrado un patrón o no
     uint8_t casilla;   // casilla es la casilla que se lee del tablero
     FA = FA + SF;
- c000358:	e55b2025 	ldrb	r2, [fp, #-37]	; 0xffffffdb
- c00035c:	e5db3004 	ldrb	r3, [fp, #4]
- c000360:	e0823003 	add	r3, r2, r3
- c000364:	e54b3025 	strb	r3, [fp, #-37]	; 0xffffffdb
+ c0003f0:	e55b2025 	ldrb	r2, [fp, #-37]	; 0xffffffdb
+ c0003f4:	e5db3004 	ldrb	r3, [fp, #4]
+ c0003f8:	e0823003 	add	r3, r2, r3
+ c0003fc:	e54b3025 	strb	r3, [fp, #-37]	; 0xffffffdb
     CA = CA + SC;
- c000368:	e55b2026 	ldrb	r2, [fp, #-38]	; 0xffffffda
- c00036c:	e5db3008 	ldrb	r3, [fp, #8]
- c000370:	e0823003 	add	r3, r2, r3
- c000374:	e54b3026 	strb	r3, [fp, #-38]	; 0xffffffda
+ c000400:	e55b2026 	ldrb	r2, [fp, #-38]	; 0xffffffda
+ c000404:	e5db3008 	ldrb	r3, [fp, #8]
+ c000408:	e0823003 	add	r3, r2, r3
+ c00040c:	e54b3026 	strb	r3, [fp, #-38]	; 0xffffffda
     casilla = ficha_valida(tablero, FA, CA, &posicion_valida);
- c000378:	e55b1025 	ldrb	r1, [fp, #-37]	; 0xffffffdb
- c00037c:	e55b2026 	ldrb	r2, [fp, #-38]	; 0xffffffda
- c000380:	e24b3018 	sub	r3, fp, #24
- c000384:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
- c000388:	ebffffbd 	bl	c000284 <ficha_valida>
- c00038c:	e1a03000 	mov	r3, r0
- c000390:	e54b300d 	strb	r3, [fp, #-13]
+ c000410:	e55b1025 	ldrb	r1, [fp, #-37]	; 0xffffffdb
+ c000414:	e55b2026 	ldrb	r2, [fp, #-38]	; 0xffffffda
+ c000418:	e24b3018 	sub	r3, fp, #24
+ c00041c:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
+ c000420:	ebffffbd 	bl	c00031c <ficha_valida>
+ c000424:	e1a03000 	mov	r3, r0
+ c000428:	e54b300d 	strb	r3, [fp, #-13]
     // mientras la casilla está en el tablero, no está vacía,
     // y es del color rival seguimos buscando el patron de volteo
     if ((posicion_valida == 1) && (casilla != color))
- c000394:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c000398:	e3530001 	cmp	r3, #1
- c00039c:	1a000016 	bne	c0003fc <patron_volteo+0xc4>
- c0003a0:	e55b200d 	ldrb	r2, [fp, #-13]
- c0003a4:	e5db300c 	ldrb	r3, [fp, #12]
- c0003a8:	e1520003 	cmp	r2, r3
- c0003ac:	0a000012 	beq	c0003fc <patron_volteo+0xc4>
+ c00042c:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000430:	e3530001 	cmp	r3, #1
+ c000434:	1a000016 	bne	c000494 <patron_volteo+0xc4>
+ c000438:	e55b200d 	ldrb	r2, [fp, #-13]
+ c00043c:	e5db300c 	ldrb	r3, [fp, #12]
+ c000440:	e1520003 	cmp	r2, r3
+ c000444:	0a000012 	beq	c000494 <patron_volteo+0xc4>
     {
         *longitud = *longitud + 1;
- c0003b0:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
- c0003b4:	e5933000 	ldr	r3, [r3]
- c0003b8:	e2832001 	add	r2, r3, #1
- c0003bc:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
- c0003c0:	e5832000 	str	r2, [r3]
-        patron = patron_volteo(tablero, longitud, FA, CA, SF, SC, color);
- c0003c4:	e55b2025 	ldrb	r2, [fp, #-37]	; 0xffffffdb
- c0003c8:	e55b3026 	ldrb	r3, [fp, #-38]	; 0xffffffda
- c0003cc:	e5db1004 	ldrb	r1, [fp, #4]
- c0003d0:	e58d1000 	str	r1, [sp]
- c0003d4:	e5db1008 	ldrb	r1, [fp, #8]
- c0003d8:	e58d1004 	str	r1, [sp, #4]
- c0003dc:	e5db100c 	ldrb	r1, [fp, #12]
- c0003e0:	e58d1008 	str	r1, [sp, #8]
- c0003e4:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
- c0003e8:	e51b1024 	ldr	r1, [fp, #-36]	; 0xffffffdc
- c0003ec:	ebffffd1 	bl	c000338 <patron_volteo>
- c0003f0:	e50b0014 	str	r0, [fp, #-20]	; 0xffffffec
+ c000448:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
+ c00044c:	e5933000 	ldr	r3, [r3]
+ c000450:	e2832001 	add	r2, r3, #1
+ c000454:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
+ c000458:	e5832000 	str	r2, [r3]
+        patron = patron_volteo_arm_c(tablero, longitud, FA, CA, SF, SC, color);
+ c00045c:	e55b2025 	ldrb	r2, [fp, #-37]	; 0xffffffdb
+ c000460:	e55b3026 	ldrb	r3, [fp, #-38]	; 0xffffffda
+ c000464:	e5db1004 	ldrb	r1, [fp, #4]
+ c000468:	e58d1000 	str	r1, [sp]
+ c00046c:	e5db1008 	ldrb	r1, [fp, #8]
+ c000470:	e58d1004 	str	r1, [sp, #4]
+ c000474:	e5db100c 	ldrb	r1, [fp, #12]
+ c000478:	e58d1008 	str	r1, [sp, #8]
+ c00047c:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
+ c000480:	e51b1024 	ldr	r1, [fp, #-36]	; 0xffffffdc
+ c000484:	ebfffee4 	bl	c00001c <patron_volteo_arm_c>
+ c000488:	e50b0014 	str	r0, [fp, #-20]	; 0xffffffec
         //printf("longitud: %d \n", *longitud);
         //printf("fila: %d; columna: %d \n", FA, CA);
         return patron;
- c0003f4:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c0003f8:	ea00000f 	b	c00043c <patron_volteo+0x104>
+ c00048c:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000490:	ea00000f 	b	c0004d4 <patron_volteo+0x104>
     }
     // si la ultima posición era válida y la ficha es del jugador actual,
     // entonces hemos encontrado el patrón
     else if ((posicion_valida == 1) && (casilla == color))
- c0003fc:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c000400:	e3530001 	cmp	r3, #1
- c000404:	1a00000b 	bne	c000438 <patron_volteo+0x100>
- c000408:	e55b200d 	ldrb	r2, [fp, #-13]
- c00040c:	e5db300c 	ldrb	r3, [fp, #12]
- c000410:	e1520003 	cmp	r2, r3
- c000414:	1a000007 	bne	c000438 <patron_volteo+0x100>
+ c000494:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000498:	e3530001 	cmp	r3, #1
+ c00049c:	1a00000b 	bne	c0004d0 <patron_volteo+0x100>
+ c0004a0:	e55b200d 	ldrb	r2, [fp, #-13]
+ c0004a4:	e5db300c 	ldrb	r3, [fp, #12]
+ c0004a8:	e1520003 	cmp	r2, r3
+ c0004ac:	1a000007 	bne	c0004d0 <patron_volteo+0x100>
     {
         if (*longitud > 0) // longitud indica cuantas fichas hay que voltear
- c000418:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
- c00041c:	e5933000 	ldr	r3, [r3]
- c000420:	e3530000 	cmp	r3, #0
- c000424:	da000001 	ble	c000430 <patron_volteo+0xf8>
+ c0004b0:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
+ c0004b4:	e5933000 	ldr	r3, [r3]
+ c0004b8:	e3530000 	cmp	r3, #0
+ c0004bc:	da000001 	ble	c0004c8 <patron_volteo+0xf8>
             {
             return PATRON_ENCONTRADO; // si hay que voltear una ficha o más hemos encontrado el patrón
- c000428:	e3a03001 	mov	r3, #1
- c00042c:	ea000002 	b	c00043c <patron_volteo+0x104>
+ c0004c0:	e3a03001 	mov	r3, #1
+ c0004c4:	ea000002 	b	c0004d4 <patron_volteo+0x104>
             //printf("PATRON_ENCONTRADO \n");
             }
         else {
             return NO_HAY_PATRON; // si no hay que voltear no hay patrón
- c000430:	e3a03000 	mov	r3, #0
- c000434:	ea000000 	b	c00043c <patron_volteo+0x104>
+ c0004c8:	e3a03000 	mov	r3, #0
+ c0004cc:	ea000000 	b	c0004d4 <patron_volteo+0x104>
             }
     }
     // en caso contrario es que no hay patrón
     else
     {
         return NO_HAY_PATRON;
- c000438:	e3a03000 	mov	r3, #0
+ c0004d0:	e3a03000 	mov	r3, #0
         //printf("NO_HAY_PATRON \n");
     }
 }
- c00043c:	e1a00003 	mov	r0, r3
- c000440:	e24bd00c 	sub	sp, fp, #12
- c000444:	e89d6800 	ldm	sp, {fp, sp, lr}
- c000448:	e12fff1e 	bx	lr
+ c0004d4:	e1a00003 	mov	r0, r3
+ c0004d8:	e24bd00c 	sub	sp, fp, #12
+ c0004dc:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c0004e0:	e12fff1e 	bx	lr
 
-0c00044c <voltear>:
+0c0004e4 <voltear>:
 // voltea n fichas en la dirección que toque
 // SF y SC son las cantidades a sumar para movernos en la dirección que toque
 // color indica el color de la pieza que se acaba de colocar
 // FA y CA son la fila y columna a analizar
 void voltear(uint8_t tablero[][DIM], uint8_t FA, uint8_t CA, uint8_t SF, uint8_t SC, int n, uint8_t color)
 {
- c00044c:	e1a0c00d 	mov	ip, sp
- c000450:	e92dd800 	push	{fp, ip, lr, pc}
- c000454:	e24cb004 	sub	fp, ip, #4
- c000458:	e24dd010 	sub	sp, sp, #16
- c00045c:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
- c000460:	e54b1019 	strb	r1, [fp, #-25]	; 0xffffffe7
- c000464:	e54b201a 	strb	r2, [fp, #-26]	; 0xffffffe6
- c000468:	e54b301b 	strb	r3, [fp, #-27]	; 0xffffffe5
+ c0004e4:	e1a0c00d 	mov	ip, sp
+ c0004e8:	e92dd800 	push	{fp, ip, lr, pc}
+ c0004ec:	e24cb004 	sub	fp, ip, #4
+ c0004f0:	e24dd010 	sub	sp, sp, #16
+ c0004f4:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c0004f8:	e54b1019 	strb	r1, [fp, #-25]	; 0xffffffe7
+ c0004fc:	e54b201a 	strb	r2, [fp, #-26]	; 0xffffffe6
+ c000500:	e54b301b 	strb	r3, [fp, #-27]	; 0xffffffe5
     int i;
 
     for (i = 0; i < n; i++)
- c00046c:	e3a03000 	mov	r3, #0
- c000470:	e50b3010 	str	r3, [fp, #-16]
- c000474:	ea000011 	b	c0004c0 <voltear+0x74>
+ c000504:	e3a03000 	mov	r3, #0
+ c000508:	e50b3010 	str	r3, [fp, #-16]
+ c00050c:	ea000011 	b	c000558 <voltear+0x74>
     {
         FA = FA + SF;
- c000478:	e55b2019 	ldrb	r2, [fp, #-25]	; 0xffffffe7
- c00047c:	e55b301b 	ldrb	r3, [fp, #-27]	; 0xffffffe5
- c000480:	e0823003 	add	r3, r2, r3
- c000484:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
+ c000510:	e55b2019 	ldrb	r2, [fp, #-25]	; 0xffffffe7
+ c000514:	e55b301b 	ldrb	r3, [fp, #-27]	; 0xffffffe5
+ c000518:	e0823003 	add	r3, r2, r3
+ c00051c:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
         CA = CA + SC;
- c000488:	e55b201a 	ldrb	r2, [fp, #-26]	; 0xffffffe6
- c00048c:	e5db3004 	ldrb	r3, [fp, #4]
- c000490:	e0823003 	add	r3, r2, r3
- c000494:	e54b301a 	strb	r3, [fp, #-26]	; 0xffffffe6
+ c000520:	e55b201a 	ldrb	r2, [fp, #-26]	; 0xffffffe6
+ c000524:	e5db3004 	ldrb	r3, [fp, #4]
+ c000528:	e0823003 	add	r3, r2, r3
+ c00052c:	e54b301a 	strb	r3, [fp, #-26]	; 0xffffffe6
         tablero[FA][CA] = color;
- c000498:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
- c00049c:	e1a03183 	lsl	r3, r3, #3
- c0004a0:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
- c0004a4:	e0822003 	add	r2, r2, r3
- c0004a8:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
- c0004ac:	e5db100c 	ldrb	r1, [fp, #12]
- c0004b0:	e7c21003 	strb	r1, [r2, r3]
+ c000530:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c000534:	e1a03183 	lsl	r3, r3, #3
+ c000538:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c00053c:	e0822003 	add	r2, r2, r3
+ c000540:	e55b301a 	ldrb	r3, [fp, #-26]	; 0xffffffe6
+ c000544:	e5db100c 	ldrb	r1, [fp, #12]
+ c000548:	e7c21003 	strb	r1, [r2, r3]
 // FA y CA son la fila y columna a analizar
 void voltear(uint8_t tablero[][DIM], uint8_t FA, uint8_t CA, uint8_t SF, uint8_t SC, int n, uint8_t color)
 {
     int i;
 
     for (i = 0; i < n; i++)
- c0004b4:	e51b3010 	ldr	r3, [fp, #-16]
- c0004b8:	e2833001 	add	r3, r3, #1
- c0004bc:	e50b3010 	str	r3, [fp, #-16]
- c0004c0:	e51b2010 	ldr	r2, [fp, #-16]
- c0004c4:	e59b3008 	ldr	r3, [fp, #8]
- c0004c8:	e1520003 	cmp	r2, r3
- c0004cc:	baffffe9 	blt	c000478 <voltear+0x2c>
+ c00054c:	e51b3010 	ldr	r3, [fp, #-16]
+ c000550:	e2833001 	add	r3, r3, #1
+ c000554:	e50b3010 	str	r3, [fp, #-16]
+ c000558:	e51b2010 	ldr	r2, [fp, #-16]
+ c00055c:	e59b3008 	ldr	r3, [fp, #8]
+ c000560:	e1520003 	cmp	r2, r3
+ c000564:	baffffe9 	blt	c000510 <voltear+0x2c>
     {
         FA = FA + SF;
         CA = CA + SC;
         tablero[FA][CA] = color;
     }
 }
- c0004d0:	e24bd00c 	sub	sp, fp, #12
- c0004d4:	e89d6800 	ldm	sp, {fp, sp, lr}
- c0004d8:	e12fff1e 	bx	lr
+ c000568:	e24bd00c 	sub	sp, fp, #12
+ c00056c:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c000570:	e12fff1e 	bx	lr
 
-0c0004dc <actualizar_tablero>:
+0c000574 <actualizar_tablero>:
 // no comprueba que el movimiento realizado sea válido
 // f y c son la fila y columna a analizar
 // uint8_t vSF[DIM] = {-1,-1, 0, 1, 1, 1, 0,-1};
 // uint8_t vSC[DIM] = { 0, 1, 1, 1, 0,-1,-1,-1};
 int actualizar_tablero(uint8_t tablero[][DIM], uint8_t f, uint8_t c, uint8_t color)
 {
- c0004dc:	e1a0c00d 	mov	ip, sp
- c0004e0:	e92dd800 	push	{fp, ip, lr, pc}
- c0004e4:	e24cb004 	sub	fp, ip, #4
- c0004e8:	e24dd028 	sub	sp, sp, #40	; 0x28
- c0004ec:	e50b0020 	str	r0, [fp, #-32]	; 0xffffffe0
- c0004f0:	e54b1021 	strb	r1, [fp, #-33]	; 0xffffffdf
- c0004f4:	e54b2022 	strb	r2, [fp, #-34]	; 0xffffffde
- c0004f8:	e54b3023 	strb	r3, [fp, #-35]	; 0xffffffdd
+ c000574:	e1a0c00d 	mov	ip, sp
+ c000578:	e92dd800 	push	{fp, ip, lr, pc}
+ c00057c:	e24cb004 	sub	fp, ip, #4
+ c000580:	e24dd028 	sub	sp, sp, #40	; 0x28
+ c000584:	e50b0020 	str	r0, [fp, #-32]	; 0xffffffe0
+ c000588:	e54b1021 	strb	r1, [fp, #-33]	; 0xffffffdf
+ c00058c:	e54b2022 	strb	r2, [fp, #-34]	; 0xffffffde
+ c000590:	e54b3023 	strb	r3, [fp, #-35]	; 0xffffffdd
     uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
     int i, flip, patron;
 
     for (i = 0; i < DIM; i++) // 0 es Norte, 1 NE, 2 E ...
- c0004fc:	e3a03000 	mov	r3, #0
- c000500:	e50b3010 	str	r3, [fp, #-16]
- c000504:	ea000028 	b	c0005ac <actualizar_tablero+0xd0>
+ c000594:	e3a03000 	mov	r3, #0
+ c000598:	e50b3010 	str	r3, [fp, #-16]
+ c00059c:	ea000028 	b	c000644 <actualizar_tablero+0xd0>
     {
         SF = vSF[i];
- c000508:	e59f20bc 	ldr	r2, [pc, #188]	; c0005cc <actualizar_tablero+0xf0>
- c00050c:	e51b3010 	ldr	r3, [fp, #-16]
- c000510:	e0823003 	add	r3, r2, r3
- c000514:	e5d33000 	ldrb	r3, [r3]
- c000518:	e54b3011 	strb	r3, [fp, #-17]	; 0xffffffef
+ c0005a0:	e59f20bc 	ldr	r2, [pc, #188]	; c000664 <actualizar_tablero+0xf0>
+ c0005a4:	e51b3010 	ldr	r3, [fp, #-16]
+ c0005a8:	e0823003 	add	r3, r2, r3
+ c0005ac:	e5d33000 	ldrb	r3, [r3]
+ c0005b0:	e54b3011 	strb	r3, [fp, #-17]	; 0xffffffef
         SC = vSC[i];
- c00051c:	e59f20ac 	ldr	r2, [pc, #172]	; c0005d0 <actualizar_tablero+0xf4>
- c000520:	e51b3010 	ldr	r3, [fp, #-16]
- c000524:	e0823003 	add	r3, r2, r3
- c000528:	e5d33000 	ldrb	r3, [r3]
- c00052c:	e54b3012 	strb	r3, [fp, #-18]	; 0xffffffee
+ c0005b4:	e59f20ac 	ldr	r2, [pc, #172]	; c000668 <actualizar_tablero+0xf4>
+ c0005b8:	e51b3010 	ldr	r3, [fp, #-16]
+ c0005bc:	e0823003 	add	r3, r2, r3
+ c0005c0:	e5d33000 	ldrb	r3, [r3]
+ c0005c4:	e54b3012 	strb	r3, [fp, #-18]	; 0xffffffee
         // flip: numero de fichas a voltear
         flip = 0;
- c000530:	e3a03000 	mov	r3, #0
- c000534:	e50b301c 	str	r3, [fp, #-28]	; 0xffffffe4
+ c0005c8:	e3a03000 	mov	r3, #0
+ c0005cc:	e50b301c 	str	r3, [fp, #-28]	; 0xffffffe4
         patron = patron_volteo_arm_c(tablero, &flip, f, c, SF, SC, color);
- c000538:	e24b101c 	sub	r1, fp, #28
- c00053c:	e55b2021 	ldrb	r2, [fp, #-33]	; 0xffffffdf
- c000540:	e55b3022 	ldrb	r3, [fp, #-34]	; 0xffffffde
- c000544:	e55b0011 	ldrb	r0, [fp, #-17]	; 0xffffffef
- c000548:	e58d0000 	str	r0, [sp]
- c00054c:	e55b0012 	ldrb	r0, [fp, #-18]	; 0xffffffee
- c000550:	e58d0004 	str	r0, [sp, #4]
- c000554:	e55b0023 	ldrb	r0, [fp, #-35]	; 0xffffffdd
- c000558:	e58d0008 	str	r0, [sp, #8]
- c00055c:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
- c000560:	ebfffeb0 	bl	c000028 <patron_volteo_arm_c>
- c000564:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c0005d0:	e24b101c 	sub	r1, fp, #28
+ c0005d4:	e55b2021 	ldrb	r2, [fp, #-33]	; 0xffffffdf
+ c0005d8:	e55b3022 	ldrb	r3, [fp, #-34]	; 0xffffffde
+ c0005dc:	e55b0011 	ldrb	r0, [fp, #-17]	; 0xffffffef
+ c0005e0:	e58d0000 	str	r0, [sp]
+ c0005e4:	e55b0012 	ldrb	r0, [fp, #-18]	; 0xffffffee
+ c0005e8:	e58d0004 	str	r0, [sp, #4]
+ c0005ec:	e55b0023 	ldrb	r0, [fp, #-35]	; 0xffffffdd
+ c0005f0:	e58d0008 	str	r0, [sp, #8]
+ c0005f4:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
+ c0005f8:	ebfffe87 	bl	c00001c <patron_volteo_arm_c>
+ c0005fc:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
         //printf("Flip: %d \n", flip);
         if (patron == PATRON_ENCONTRADO )
- c000568:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c00056c:	e3530001 	cmp	r3, #1
- c000570:	1a00000a 	bne	c0005a0 <actualizar_tablero+0xc4>
+ c000600:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000604:	e3530001 	cmp	r3, #1
+ c000608:	1a00000a 	bne	c000638 <actualizar_tablero+0xc4>
         {
             voltear(tablero, f, c, SF, SC, flip, color);
- c000574:	e51b001c 	ldr	r0, [fp, #-28]	; 0xffffffe4
- c000578:	e55b1021 	ldrb	r1, [fp, #-33]	; 0xffffffdf
- c00057c:	e55b2022 	ldrb	r2, [fp, #-34]	; 0xffffffde
- c000580:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000584:	e55bc012 	ldrb	ip, [fp, #-18]	; 0xffffffee
- c000588:	e58dc000 	str	ip, [sp]
- c00058c:	e58d0004 	str	r0, [sp, #4]
- c000590:	e55b0023 	ldrb	r0, [fp, #-35]	; 0xffffffdd
- c000594:	e58d0008 	str	r0, [sp, #8]
- c000598:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
- c00059c:	ebffffaa 	bl	c00044c <voltear>
+ c00060c:	e51b001c 	ldr	r0, [fp, #-28]	; 0xffffffe4
+ c000610:	e55b1021 	ldrb	r1, [fp, #-33]	; 0xffffffdf
+ c000614:	e55b2022 	ldrb	r2, [fp, #-34]	; 0xffffffde
+ c000618:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c00061c:	e55bc012 	ldrb	ip, [fp, #-18]	; 0xffffffee
+ c000620:	e58dc000 	str	ip, [sp]
+ c000624:	e58d0004 	str	r0, [sp, #4]
+ c000628:	e55b0023 	ldrb	r0, [fp, #-35]	; 0xffffffdd
+ c00062c:	e58d0008 	str	r0, [sp, #8]
+ c000630:	e51b0020 	ldr	r0, [fp, #-32]	; 0xffffffe0
+ c000634:	ebffffaa 	bl	c0004e4 <voltear>
 int actualizar_tablero(uint8_t tablero[][DIM], uint8_t f, uint8_t c, uint8_t color)
 {
     uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
     int i, flip, patron;
 
     for (i = 0; i < DIM; i++) // 0 es Norte, 1 NE, 2 E ...
- c0005a0:	e51b3010 	ldr	r3, [fp, #-16]
- c0005a4:	e2833001 	add	r3, r3, #1
- c0005a8:	e50b3010 	str	r3, [fp, #-16]
- c0005ac:	e51b3010 	ldr	r3, [fp, #-16]
- c0005b0:	e3530007 	cmp	r3, #7
- c0005b4:	daffffd3 	ble	c000508 <actualizar_tablero+0x2c>
+ c000638:	e51b3010 	ldr	r3, [fp, #-16]
+ c00063c:	e2833001 	add	r3, r3, #1
+ c000640:	e50b3010 	str	r3, [fp, #-16]
+ c000644:	e51b3010 	ldr	r3, [fp, #-16]
+ c000648:	e3530007 	cmp	r3, #7
+ c00064c:	daffffd3 	ble	c0005a0 <actualizar_tablero+0x2c>
         if (patron == PATRON_ENCONTRADO )
         {
             voltear(tablero, f, c, SF, SC, flip, color);
         }
     }
     return 0;
- c0005b8:	e3a03000 	mov	r3, #0
+ c000650:	e3a03000 	mov	r3, #0
 }
- c0005bc:	e1a00003 	mov	r0, r3
- c0005c0:	e24bd00c 	sub	sp, fp, #12
- c0005c4:	e89d6800 	ldm	sp, {fp, sp, lr}
- c0005c8:	e12fff1e 	bx	lr
- c0005cc:	0c0013e8 	.word	0x0c0013e8
- c0005d0:	0c0013f0 	.word	0x0c0013f0
+ c000654:	e1a00003 	mov	r0, r3
+ c000658:	e24bd00c 	sub	sp, fp, #12
+ c00065c:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c000660:	e12fff1e 	bx	lr
+ c000664:	0c001480 	.word	0x0c001480
+ c000668:	0c001488 	.word	0x0c001488
 
-0c0005d4 <elegir_mov>:
+0c00066c <elegir_mov>:
 // Candidatas
 // NO    0
 // SI    1
 // CASILLA_OCUPADA 2
 int elegir_mov(uint8_t candidatas[][DIM], uint8_t tablero[][DIM], uint8_t *f, uint8_t *c)
 {
- c0005d4:	e1a0c00d 	mov	ip, sp
- c0005d8:	e92dd800 	push	{fp, ip, lr, pc}
- c0005dc:	e24cb004 	sub	fp, ip, #4
- c0005e0:	e24dd048 	sub	sp, sp, #72	; 0x48
- c0005e4:	e50b0038 	str	r0, [fp, #-56]	; 0xffffffc8
- c0005e8:	e50b103c 	str	r1, [fp, #-60]	; 0xffffffc4
- c0005ec:	e50b2040 	str	r2, [fp, #-64]	; 0xffffffc0
- c0005f0:	e50b3044 	str	r3, [fp, #-68]	; 0xffffffbc
+ c00066c:	e1a0c00d 	mov	ip, sp
+ c000670:	e92dd800 	push	{fp, ip, lr, pc}
+ c000674:	e24cb004 	sub	fp, ip, #4
+ c000678:	e24dd048 	sub	sp, sp, #72	; 0x48
+ c00067c:	e50b0038 	str	r0, [fp, #-56]	; 0xffffffc8
+ c000680:	e50b103c 	str	r1, [fp, #-60]	; 0xffffffc4
+ c000684:	e50b2040 	str	r2, [fp, #-64]	; 0xffffffc0
+ c000688:	e50b3044 	str	r3, [fp, #-68]	; 0xffffffbc
     int i, j, k, found;
     int mf = -1; // almacena la fila del mejor movimiento encontrado
- c0005f4:	e3e03000 	mvn	r3, #0
- c0005f8:	e50b3020 	str	r3, [fp, #-32]	; 0xffffffe0
+ c00068c:	e3e03000 	mvn	r3, #0
+ c000690:	e50b3020 	str	r3, [fp, #-32]	; 0xffffffe0
     int mc;      // almacena la columna del mejor movimiento encontrado
     uint8_t mejor = 0; // almacena el mejor valor encontrado
- c0005fc:	e3a03000 	mov	r3, #0
- c000600:	e54b3025 	strb	r3, [fp, #-37]	; 0xffffffdb
+ c000694:	e3a03000 	mov	r3, #0
+ c000698:	e54b3025 	strb	r3, [fp, #-37]	; 0xffffffdb
     int patron, longitud;
     uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
 
-    // Recorremos todo el tablero comprobando dónde podemos mover
+    // Recorremos tod el tablero comprobando dónde podemos mover
     // Comparamos la puntuación de los movimientos encontrados y nos quedamos con el mejor
     for (i=0; i<DIM; i++)
- c000604:	e3a03000 	mov	r3, #0
- c000608:	e50b3010 	str	r3, [fp, #-16]
- c00060c:	ea000062 	b	c00079c <elegir_mov+0x1c8>
+ c00069c:	e3a03000 	mov	r3, #0
+ c0006a0:	e50b3010 	str	r3, [fp, #-16]
+ c0006a4:	ea000062 	b	c000834 <elegir_mov+0x1c8>
     {
         for (j=0; j<DIM; j++)
- c000610:	e3a03000 	mov	r3, #0
- c000614:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
- c000618:	ea000059 	b	c000784 <elegir_mov+0x1b0>
+ c0006a8:	e3a03000 	mov	r3, #0
+ c0006ac:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c0006b0:	ea000059 	b	c00081c <elegir_mov+0x1b0>
         {   // indica en qué casillas quizá se pueda mover
             if (candidatas[i][j] == SI)
- c00061c:	e51b3010 	ldr	r3, [fp, #-16]
- c000620:	e1a03183 	lsl	r3, r3, #3
- c000624:	e51b2038 	ldr	r2, [fp, #-56]	; 0xffffffc8
- c000628:	e0822003 	add	r2, r2, r3
- c00062c:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000630:	e0823003 	add	r3, r2, r3
- c000634:	e5d32000 	ldrb	r2, [r3]
- c000638:	e59f319c 	ldr	r3, [pc, #412]	; c0007dc <elegir_mov+0x208>
- c00063c:	e5d33000 	ldrb	r3, [r3]
- c000640:	e1520003 	cmp	r2, r3
- c000644:	1a00004b 	bne	c000778 <elegir_mov+0x1a4>
+ c0006b4:	e51b3010 	ldr	r3, [fp, #-16]
+ c0006b8:	e1a03183 	lsl	r3, r3, #3
+ c0006bc:	e51b2038 	ldr	r2, [fp, #-56]	; 0xffffffc8
+ c0006c0:	e0822003 	add	r2, r2, r3
+ c0006c4:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c0006c8:	e0823003 	add	r3, r2, r3
+ c0006cc:	e5d32000 	ldrb	r2, [r3]
+ c0006d0:	e59f319c 	ldr	r3, [pc, #412]	; c000874 <elegir_mov+0x208>
+ c0006d4:	e5d33000 	ldrb	r3, [r3]
+ c0006d8:	e1520003 	cmp	r2, r3
+ c0006dc:	1a00004b 	bne	c000810 <elegir_mov+0x1a4>
             {
                 if (tablero[i][j] == CASILLA_VACIA)
- c000648:	e51b3010 	ldr	r3, [fp, #-16]
- c00064c:	e1a03183 	lsl	r3, r3, #3
- c000650:	e51b203c 	ldr	r2, [fp, #-60]	; 0xffffffc4
- c000654:	e0822003 	add	r2, r2, r3
- c000658:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c00065c:	e0823003 	add	r3, r2, r3
- c000660:	e5d33000 	ldrb	r3, [r3]
- c000664:	e3530000 	cmp	r3, #0
- c000668:	1a000042 	bne	c000778 <elegir_mov+0x1a4>
+ c0006e0:	e51b3010 	ldr	r3, [fp, #-16]
+ c0006e4:	e1a03183 	lsl	r3, r3, #3
+ c0006e8:	e51b203c 	ldr	r2, [fp, #-60]	; 0xffffffc4
+ c0006ec:	e0822003 	add	r2, r2, r3
+ c0006f0:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c0006f4:	e0823003 	add	r3, r2, r3
+ c0006f8:	e5d33000 	ldrb	r3, [r3]
+ c0006fc:	e3530000 	cmp	r3, #0
+ c000700:	1a000042 	bne	c000810 <elegir_mov+0x1a4>
                 {
                     found = 0;
- c00066c:	e3a03000 	mov	r3, #0
- c000670:	e50b301c 	str	r3, [fp, #-28]	; 0xffffffe4
+ c000704:	e3a03000 	mov	r3, #0
+ c000708:	e50b301c 	str	r3, [fp, #-28]	; 0xffffffe4
                     k = 0;
- c000674:	e3a03000 	mov	r3, #0
- c000678:	e50b3018 	str	r3, [fp, #-24]	; 0xffffffe8
+ c00070c:	e3a03000 	mov	r3, #0
+ c000710:	e50b3018 	str	r3, [fp, #-24]	; 0xffffffe8
 
                     // en este bucle comprobamos si es un movimiento válido
                     // (es decir si implica voltear en alguna dirección)
                     while ((found == 0) && (k < DIM))
- c00067c:	ea000037 	b	c000760 <elegir_mov+0x18c>
+ c000714:	ea000037 	b	c0007f8 <elegir_mov+0x18c>
                     {
                         SF = vSF[k];    // k representa la dirección que miramos
- c000680:	e59f2158 	ldr	r2, [pc, #344]	; c0007e0 <elegir_mov+0x20c>
- c000684:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c000688:	e0823003 	add	r3, r2, r3
- c00068c:	e5d33000 	ldrb	r3, [r3]
- c000690:	e54b3026 	strb	r3, [fp, #-38]	; 0xffffffda
+ c000718:	e59f2158 	ldr	r2, [pc, #344]	; c000878 <elegir_mov+0x20c>
+ c00071c:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000720:	e0823003 	add	r3, r2, r3
+ c000724:	e5d33000 	ldrb	r3, [r3]
+ c000728:	e54b3026 	strb	r3, [fp, #-38]	; 0xffffffda
                         SC = vSC[k];    // 1 es norte, 2 NE, 3 E ...
- c000694:	e59f2148 	ldr	r2, [pc, #328]	; c0007e4 <elegir_mov+0x210>
- c000698:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c00069c:	e0823003 	add	r3, r2, r3
- c0006a0:	e5d33000 	ldrb	r3, [r3]
- c0006a4:	e54b3027 	strb	r3, [fp, #-39]	; 0xffffffd9
+ c00072c:	e59f2148 	ldr	r2, [pc, #328]	; c00087c <elegir_mov+0x210>
+ c000730:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000734:	e0823003 	add	r3, r2, r3
+ c000738:	e5d33000 	ldrb	r3, [r3]
+ c00073c:	e54b3027 	strb	r3, [fp, #-39]	; 0xffffffd9
 
                         // nos dice qué hay que voltear en cada dirección
                         longitud = 0;
- c0006a8:	e3a03000 	mov	r3, #0
- c0006ac:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
-                        patron = patron_volteo_arm_c(tablero, &longitud, i, j, SF, SC, FICHA_BLANCA);
- c0006b0:	e51b3010 	ldr	r3, [fp, #-16]
- c0006b4:	e20320ff 	and	r2, r3, #255	; 0xff
- c0006b8:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c0006bc:	e20330ff 	and	r3, r3, #255	; 0xff
- c0006c0:	e24b1030 	sub	r1, fp, #48	; 0x30
- c0006c4:	e55b0026 	ldrb	r0, [fp, #-38]	; 0xffffffda
- c0006c8:	e58d0000 	str	r0, [sp]
- c0006cc:	e55b0027 	ldrb	r0, [fp, #-39]	; 0xffffffd9
- c0006d0:	e58d0004 	str	r0, [sp, #4]
- c0006d4:	e3a00001 	mov	r0, #1
- c0006d8:	e58d0008 	str	r0, [sp, #8]
- c0006dc:	e51b003c 	ldr	r0, [fp, #-60]	; 0xffffffc4
- c0006e0:	ebfffe50 	bl	c000028 <patron_volteo_arm_c>
- c0006e4:	e50b002c 	str	r0, [fp, #-44]	; 0xffffffd4
+ c000740:	e3a03000 	mov	r3, #0
+ c000744:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
+                        patron = patron_volteo(tablero, &longitud, i, j, SF, SC, FICHA_BLANCA);
+ c000748:	e51b3010 	ldr	r3, [fp, #-16]
+ c00074c:	e20320ff 	and	r2, r3, #255	; 0xff
+ c000750:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000754:	e20330ff 	and	r3, r3, #255	; 0xff
+ c000758:	e24b1030 	sub	r1, fp, #48	; 0x30
+ c00075c:	e55b0026 	ldrb	r0, [fp, #-38]	; 0xffffffda
+ c000760:	e58d0000 	str	r0, [sp]
+ c000764:	e55b0027 	ldrb	r0, [fp, #-39]	; 0xffffffd9
+ c000768:	e58d0004 	str	r0, [sp, #4]
+ c00076c:	e3a00001 	mov	r0, #1
+ c000770:	e58d0008 	str	r0, [sp, #8]
+ c000774:	e51b003c 	ldr	r0, [fp, #-60]	; 0xffffffc4
+ c000778:	ebffff14 	bl	c0003d0 <patron_volteo>
+ c00077c:	e50b002c 	str	r0, [fp, #-44]	; 0xffffffd4
                         //  //printf("%d ", patron);
                         if (patron == PATRON_ENCONTRADO)
- c0006e8:	e51b302c 	ldr	r3, [fp, #-44]	; 0xffffffd4
- c0006ec:	e3530001 	cmp	r3, #1
- c0006f0:	1a000017 	bne	c000754 <elegir_mov+0x180>
+ c000780:	e51b302c 	ldr	r3, [fp, #-44]	; 0xffffffd4
+ c000784:	e3530001 	cmp	r3, #1
+ c000788:	1a000017 	bne	c0007ec <elegir_mov+0x180>
                         {
                             found = 1;
- c0006f4:	e3a03001 	mov	r3, #1
- c0006f8:	e50b301c 	str	r3, [fp, #-28]	; 0xffffffe4
+ c00078c:	e3a03001 	mov	r3, #1
+ c000790:	e50b301c 	str	r3, [fp, #-28]	; 0xffffffe4
                             if (tabla_valor[i][j] > mejor)
- c0006fc:	e59f20e4 	ldr	r2, [pc, #228]	; c0007e8 <elegir_mov+0x214>
- c000700:	e51b3010 	ldr	r3, [fp, #-16]
- c000704:	e1a01183 	lsl	r1, r3, #3
- c000708:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c00070c:	e0813003 	add	r3, r1, r3
- c000710:	e0823003 	add	r3, r2, r3
- c000714:	e5d33000 	ldrb	r3, [r3]
- c000718:	e55b2025 	ldrb	r2, [fp, #-37]	; 0xffffffdb
- c00071c:	e1520003 	cmp	r2, r3
- c000720:	2a00000b 	bcs	c000754 <elegir_mov+0x180>
+ c000794:	e59f20e4 	ldr	r2, [pc, #228]	; c000880 <elegir_mov+0x214>
+ c000798:	e51b3010 	ldr	r3, [fp, #-16]
+ c00079c:	e1a01183 	lsl	r1, r3, #3
+ c0007a0:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c0007a4:	e0813003 	add	r3, r1, r3
+ c0007a8:	e0823003 	add	r3, r2, r3
+ c0007ac:	e5d33000 	ldrb	r3, [r3]
+ c0007b0:	e55b2025 	ldrb	r2, [fp, #-37]	; 0xffffffdb
+ c0007b4:	e1520003 	cmp	r2, r3
+ c0007b8:	2a00000b 	bcs	c0007ec <elegir_mov+0x180>
                             {
                                 mf = i;
- c000724:	e51b3010 	ldr	r3, [fp, #-16]
- c000728:	e50b3020 	str	r3, [fp, #-32]	; 0xffffffe0
+ c0007bc:	e51b3010 	ldr	r3, [fp, #-16]
+ c0007c0:	e50b3020 	str	r3, [fp, #-32]	; 0xffffffe0
                                 mc = j;
- c00072c:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000730:	e50b3024 	str	r3, [fp, #-36]	; 0xffffffdc
+ c0007c4:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c0007c8:	e50b3024 	str	r3, [fp, #-36]	; 0xffffffdc
                                 mejor = tabla_valor[i][j];
- c000734:	e59f20ac 	ldr	r2, [pc, #172]	; c0007e8 <elegir_mov+0x214>
- c000738:	e51b3010 	ldr	r3, [fp, #-16]
- c00073c:	e1a01183 	lsl	r1, r3, #3
- c000740:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000744:	e0813003 	add	r3, r1, r3
- c000748:	e0823003 	add	r3, r2, r3
- c00074c:	e5d33000 	ldrb	r3, [r3]
- c000750:	e54b3025 	strb	r3, [fp, #-37]	; 0xffffffdb
+ c0007cc:	e59f20ac 	ldr	r2, [pc, #172]	; c000880 <elegir_mov+0x214>
+ c0007d0:	e51b3010 	ldr	r3, [fp, #-16]
+ c0007d4:	e1a01183 	lsl	r1, r3, #3
+ c0007d8:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c0007dc:	e0813003 	add	r3, r1, r3
+ c0007e0:	e0823003 	add	r3, r2, r3
+ c0007e4:	e5d33000 	ldrb	r3, [r3]
+ c0007e8:	e54b3025 	strb	r3, [fp, #-37]	; 0xffffffdb
                             }
                         }
                         k++;
- c000754:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c000758:	e2833001 	add	r3, r3, #1
- c00075c:	e50b3018 	str	r3, [fp, #-24]	; 0xffffffe8
+ c0007ec:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c0007f0:	e2833001 	add	r3, r3, #1
+ c0007f4:	e50b3018 	str	r3, [fp, #-24]	; 0xffffffe8
                     found = 0;
                     k = 0;
 
                     // en este bucle comprobamos si es un movimiento válido
                     // (es decir si implica voltear en alguna dirección)
                     while ((found == 0) && (k < DIM))
- c000760:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000764:	e3530000 	cmp	r3, #0
- c000768:	1a000002 	bne	c000778 <elegir_mov+0x1a4>
- c00076c:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
- c000770:	e3530007 	cmp	r3, #7
- c000774:	daffffc1 	ble	c000680 <elegir_mov+0xac>
+ c0007f8:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0007fc:	e3530000 	cmp	r3, #0
+ c000800:	1a000002 	bne	c000810 <elegir_mov+0x1a4>
+ c000804:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000808:	e3530007 	cmp	r3, #7
+ c00080c:	daffffc1 	ble	c000718 <elegir_mov+0xac>
 
-    // Recorremos todo el tablero comprobando dónde podemos mover
+    // Recorremos tod el tablero comprobando dónde podemos mover
     // Comparamos la puntuación de los movimientos encontrados y nos quedamos con el mejor
     for (i=0; i<DIM; i++)
     {
         for (j=0; j<DIM; j++)
- c000778:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c00077c:	e2833001 	add	r3, r3, #1
- c000780:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
- c000784:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000788:	e3530007 	cmp	r3, #7
- c00078c:	daffffa2 	ble	c00061c <elegir_mov+0x48>
+ c000810:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000814:	e2833001 	add	r3, r3, #1
+ c000818:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c00081c:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000820:	e3530007 	cmp	r3, #7
+ c000824:	daffffa2 	ble	c0006b4 <elegir_mov+0x48>
     int patron, longitud;
     uint8_t SF, SC; // cantidades a sumar para movernos en la dirección que toque
 
-    // Recorremos todo el tablero comprobando dónde podemos mover
+    // Recorremos tod el tablero comprobando dónde podemos mover
     // Comparamos la puntuación de los movimientos encontrados y nos quedamos con el mejor
     for (i=0; i<DIM; i++)
- c000790:	e51b3010 	ldr	r3, [fp, #-16]
- c000794:	e2833001 	add	r3, r3, #1
- c000798:	e50b3010 	str	r3, [fp, #-16]
- c00079c:	e51b3010 	ldr	r3, [fp, #-16]
- c0007a0:	e3530007 	cmp	r3, #7
- c0007a4:	daffff99 	ble	c000610 <elegir_mov+0x3c>
+ c000828:	e51b3010 	ldr	r3, [fp, #-16]
+ c00082c:	e2833001 	add	r3, r3, #1
+ c000830:	e50b3010 	str	r3, [fp, #-16]
+ c000834:	e51b3010 	ldr	r3, [fp, #-16]
+ c000838:	e3530007 	cmp	r3, #7
+ c00083c:	daffff99 	ble	c0006a8 <elegir_mov+0x3c>
                     }
                 }
             }
         }
     }
     *f = (uint8_t) mf;
- c0007a8:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
- c0007ac:	e20320ff 	and	r2, r3, #255	; 0xff
- c0007b0:	e51b3040 	ldr	r3, [fp, #-64]	; 0xffffffc0
- c0007b4:	e5c32000 	strb	r2, [r3]
+ c000840:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c000844:	e20320ff 	and	r2, r3, #255	; 0xff
+ c000848:	e51b3040 	ldr	r3, [fp, #-64]	; 0xffffffc0
+ c00084c:	e5c32000 	strb	r2, [r3]
     *c = (uint8_t) mc;
- c0007b8:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
- c0007bc:	e20320ff 	and	r2, r3, #255	; 0xff
- c0007c0:	e51b3044 	ldr	r3, [fp, #-68]	; 0xffffffbc
- c0007c4:	e5c32000 	strb	r2, [r3]
+ c000850:	e51b3024 	ldr	r3, [fp, #-36]	; 0xffffffdc
+ c000854:	e20320ff 	and	r2, r3, #255	; 0xff
+ c000858:	e51b3044 	ldr	r3, [fp, #-68]	; 0xffffffbc
+ c00085c:	e5c32000 	strb	r2, [r3]
     // si no se ha encontrado una posición válida devuelve -1
     return mf;
- c0007c8:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c000860:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
 }
- c0007cc:	e1a00003 	mov	r0, r3
- c0007d0:	e24bd00c 	sub	sp, fp, #12
- c0007d4:	e89d6800 	ldm	sp, {fp, sp, lr}
- c0007d8:	e12fff1e 	bx	lr
- c0007dc:	0c0013a1 	.word	0x0c0013a1
- c0007e0:	0c0013e8 	.word	0x0c0013e8
- c0007e4:	0c0013f0 	.word	0x0c0013f0
- c0007e8:	0c0013a8 	.word	0x0c0013a8
+ c000864:	e1a00003 	mov	r0, r3
+ c000868:	e24bd00c 	sub	sp, fp, #12
+ c00086c:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c000870:	e12fff1e 	bx	lr
+ c000874:	0c001439 	.word	0x0c001439
+ c000878:	0c001480 	.word	0x0c001480
+ c00087c:	0c001488 	.word	0x0c001488
+ c000880:	0c001440 	.word	0x0c001440
 
-0c0007ec <contar>:
+0c000884 <contar>:
 ////////////////////////////////////////////////////////////////////////////////
 // Cuenta el número de fichas de cada color.
 // Los guarda en la dirección b (blancas) y n (negras)
 void contar(uint8_t tablero[][DIM], int *b, int *n)
 {
- c0007ec:	e1a0c00d 	mov	ip, sp
- c0007f0:	e92dd800 	push	{fp, ip, lr, pc}
- c0007f4:	e24cb004 	sub	fp, ip, #4
- c0007f8:	e24dd018 	sub	sp, sp, #24
- c0007fc:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
- c000800:	e50b101c 	str	r1, [fp, #-28]	; 0xffffffe4
- c000804:	e50b2020 	str	r2, [fp, #-32]	; 0xffffffe0
+ c000884:	e1a0c00d 	mov	ip, sp
+ c000888:	e92dd800 	push	{fp, ip, lr, pc}
+ c00088c:	e24cb004 	sub	fp, ip, #4
+ c000890:	e24dd018 	sub	sp, sp, #24
+ c000894:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c000898:	e50b101c 	str	r1, [fp, #-28]	; 0xffffffe4
+ c00089c:	e50b2020 	str	r2, [fp, #-32]	; 0xffffffe0
     int i,j;
 
     *b = 0;
- c000808:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c00080c:	e3a02000 	mov	r2, #0
- c000810:	e5832000 	str	r2, [r3]
-    *n = 0;
- c000814:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
- c000818:	e3a02000 	mov	r2, #0
- c00081c:	e5832000 	str	r2, [r3]
-
-    // recorremos todo el tablero contando las fichas de cada color
-    for (i=0; i<DIM; i++)
- c000820:	e3a03000 	mov	r3, #0
- c000824:	e50b3010 	str	r3, [fp, #-16]
- c000828:	ea000028 	b	c0008d0 <contar+0xe4>
-    {
-        for (j=0; j<DIM; j++)
- c00082c:	e3a03000 	mov	r3, #0
- c000830:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
- c000834:	ea00001f 	b	c0008b8 <contar+0xcc>
-        {
-            if (tablero[i][j] == FICHA_BLANCA)
- c000838:	e51b3010 	ldr	r3, [fp, #-16]
- c00083c:	e1a03183 	lsl	r3, r3, #3
- c000840:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
- c000844:	e0822003 	add	r2, r2, r3
- c000848:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c00084c:	e0823003 	add	r3, r2, r3
- c000850:	e5d33000 	ldrb	r3, [r3]
- c000854:	e3530001 	cmp	r3, #1
- c000858:	1a000005 	bne	c000874 <contar+0x88>
-            {
-                (*b)++;
- c00085c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c000860:	e5933000 	ldr	r3, [r3]
- c000864:	e2832001 	add	r2, r3, #1
- c000868:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
- c00086c:	e5832000 	str	r2, [r3]
- c000870:	ea00000d 	b	c0008ac <contar+0xc0>
-            }
-            else if (tablero[i][j] == FICHA_NEGRA)
- c000874:	e51b3010 	ldr	r3, [fp, #-16]
- c000878:	e1a03183 	lsl	r3, r3, #3
- c00087c:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
- c000880:	e0822003 	add	r2, r2, r3
- c000884:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c000888:	e0823003 	add	r3, r2, r3
- c00088c:	e5d33000 	ldrb	r3, [r3]
- c000890:	e3530002 	cmp	r3, #2
- c000894:	1a000004 	bne	c0008ac <contar+0xc0>
-            {
-                (*n)++;
- c000898:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
- c00089c:	e5933000 	ldr	r3, [r3]
- c0008a0:	e2832001 	add	r2, r3, #1
- c0008a4:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c0008a0:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0008a4:	e3a02000 	mov	r2, #0
  c0008a8:	e5832000 	str	r2, [r3]
     *n = 0;
+ c0008ac:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c0008b0:	e3a02000 	mov	r2, #0
+ c0008b4:	e5832000 	str	r2, [r3]
 
-    // recorremos todo el tablero contando las fichas de cada color
+    // recorremos tod el tablero contando las fichas de cada color
+    for (i=0; i<DIM; i++)
+ c0008b8:	e3a03000 	mov	r3, #0
+ c0008bc:	e50b3010 	str	r3, [fp, #-16]
+ c0008c0:	ea000028 	b	c000968 <contar+0xe4>
+    {
+        for (j=0; j<DIM; j++)
+ c0008c4:	e3a03000 	mov	r3, #0
+ c0008c8:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c0008cc:	ea00001f 	b	c000950 <contar+0xcc>
+        {
+            if (tablero[i][j] == FICHA_BLANCA)
+ c0008d0:	e51b3010 	ldr	r3, [fp, #-16]
+ c0008d4:	e1a03183 	lsl	r3, r3, #3
+ c0008d8:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c0008dc:	e0822003 	add	r2, r2, r3
+ c0008e0:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c0008e4:	e0823003 	add	r3, r2, r3
+ c0008e8:	e5d33000 	ldrb	r3, [r3]
+ c0008ec:	e3530001 	cmp	r3, #1
+ c0008f0:	1a000005 	bne	c00090c <contar+0x88>
+            {
+                (*b)++;
+ c0008f4:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c0008f8:	e5933000 	ldr	r3, [r3]
+ c0008fc:	e2832001 	add	r2, r3, #1
+ c000900:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000904:	e5832000 	str	r2, [r3]
+ c000908:	ea00000d 	b	c000944 <contar+0xc0>
+            }
+            else if (tablero[i][j] == FICHA_NEGRA)
+ c00090c:	e51b3010 	ldr	r3, [fp, #-16]
+ c000910:	e1a03183 	lsl	r3, r3, #3
+ c000914:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c000918:	e0822003 	add	r2, r2, r3
+ c00091c:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000920:	e0823003 	add	r3, r2, r3
+ c000924:	e5d33000 	ldrb	r3, [r3]
+ c000928:	e3530002 	cmp	r3, #2
+ c00092c:	1a000004 	bne	c000944 <contar+0xc0>
+            {
+                (*n)++;
+ c000930:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c000934:	e5933000 	ldr	r3, [r3]
+ c000938:	e2832001 	add	r2, r3, #1
+ c00093c:	e51b3020 	ldr	r3, [fp, #-32]	; 0xffffffe0
+ c000940:	e5832000 	str	r2, [r3]
+    *n = 0;
+
+    // recorremos tod el tablero contando las fichas de cada color
     for (i=0; i<DIM; i++)
     {
         for (j=0; j<DIM; j++)
- c0008ac:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c0008b0:	e2833001 	add	r3, r3, #1
- c0008b4:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
- c0008b8:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
- c0008bc:	e3530007 	cmp	r3, #7
- c0008c0:	daffffdc 	ble	c000838 <contar+0x4c>
+ c000944:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000948:	e2833001 	add	r3, r3, #1
+ c00094c:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c000950:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c000954:	e3530007 	cmp	r3, #7
+ c000958:	daffffdc 	ble	c0008d0 <contar+0x4c>
 
     *b = 0;
     *n = 0;
 
-    // recorremos todo el tablero contando las fichas de cada color
+    // recorremos tod el tablero contando las fichas de cada color
     for (i=0; i<DIM; i++)
- c0008c4:	e51b3010 	ldr	r3, [fp, #-16]
- c0008c8:	e2833001 	add	r3, r3, #1
- c0008cc:	e50b3010 	str	r3, [fp, #-16]
- c0008d0:	e51b3010 	ldr	r3, [fp, #-16]
- c0008d4:	e3530007 	cmp	r3, #7
- c0008d8:	daffffd3 	ble	c00082c <contar+0x40>
+ c00095c:	e51b3010 	ldr	r3, [fp, #-16]
+ c000960:	e2833001 	add	r3, r3, #1
+ c000964:	e50b3010 	str	r3, [fp, #-16]
+ c000968:	e51b3010 	ldr	r3, [fp, #-16]
+ c00096c:	e3530007 	cmp	r3, #7
+ c000970:	daffffd3 	ble	c0008c4 <contar+0x40>
             {
                 (*n)++;
             }
         }
     }
 }
- c0008dc:	e24bd00c 	sub	sp, fp, #12
- c0008e0:	e89d6800 	ldm	sp, {fp, sp, lr}
- c0008e4:	e12fff1e 	bx	lr
+ c000974:	e24bd00c 	sub	sp, fp, #12
+ c000978:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c00097c:	e12fff1e 	bx	lr
 
-0c0008e8 <actualizar_candidatas>:
+0c000980 <actualizar_candidatas>:
 
 void actualizar_candidatas(uint8_t candidatas[][DIM], uint8_t f, uint8_t c)
 {
- c0008e8:	e1a0c00d 	mov	ip, sp
- c0008ec:	e92dd800 	push	{fp, ip, lr, pc}
- c0008f0:	e24cb004 	sub	fp, ip, #4
- c0008f4:	e24dd008 	sub	sp, sp, #8
- c0008f8:	e50b0010 	str	r0, [fp, #-16]
- c0008fc:	e1a03002 	mov	r3, r2
- c000900:	e1a02001 	mov	r2, r1
- c000904:	e54b2011 	strb	r2, [fp, #-17]	; 0xffffffef
- c000908:	e54b3012 	strb	r3, [fp, #-18]	; 0xffffffee
+ c000980:	e1a0c00d 	mov	ip, sp
+ c000984:	e92dd800 	push	{fp, ip, lr, pc}
+ c000988:	e24cb004 	sub	fp, ip, #4
+ c00098c:	e24dd008 	sub	sp, sp, #8
+ c000990:	e50b0010 	str	r0, [fp, #-16]
+ c000994:	e1a03002 	mov	r3, r2
+ c000998:	e1a02001 	mov	r2, r1
+ c00099c:	e54b2011 	strb	r2, [fp, #-17]	; 0xffffffef
+ c0009a0:	e54b3012 	strb	r3, [fp, #-18]	; 0xffffffee
     // donde ya se ha colocado no se puede volver a colocar
     // En las posiciones alrededor sí
     candidatas[f][c] = CASILLA_OCUPADA;
- c00090c:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000910:	e1a03183 	lsl	r3, r3, #3
- c000914:	e51b2010 	ldr	r2, [fp, #-16]
- c000918:	e0822003 	add	r2, r2, r3
- c00091c:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000920:	e59f1310 	ldr	r1, [pc, #784]	; c000c38 <actualizar_candidatas+0x350>
- c000924:	e5d11000 	ldrb	r1, [r1]
- c000928:	e7c21003 	strb	r1, [r2, r3]
+ c0009a4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c0009a8:	e1a03183 	lsl	r3, r3, #3
+ c0009ac:	e51b2010 	ldr	r2, [fp, #-16]
+ c0009b0:	e0822003 	add	r2, r2, r3
+ c0009b4:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c0009b8:	e59f1310 	ldr	r1, [pc, #784]	; c000cd0 <actualizar_candidatas+0x350>
+ c0009bc:	e5d11000 	ldrb	r1, [r1]
+ c0009c0:	e7c21003 	strb	r1, [r2, r3]
     if (f > 0)
- c00092c:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000930:	e3530000 	cmp	r3, #0
- c000934:	0a000045 	beq	c000a50 <actualizar_candidatas+0x168>
+ c0009c4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c0009c8:	e3530000 	cmp	r3, #0
+ c0009cc:	0a000045 	beq	c000ae8 <actualizar_candidatas+0x168>
     {
         if (candidatas[f-1][c] != CASILLA_OCUPADA)
- c000938:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c00093c:	e2433001 	sub	r3, r3, #1
- c000940:	e1a03183 	lsl	r3, r3, #3
- c000944:	e51b2010 	ldr	r2, [fp, #-16]
- c000948:	e0822003 	add	r2, r2, r3
- c00094c:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000950:	e7d22003 	ldrb	r2, [r2, r3]
- c000954:	e59f32dc 	ldr	r3, [pc, #732]	; c000c38 <actualizar_candidatas+0x350>
- c000958:	e5d33000 	ldrb	r3, [r3]
- c00095c:	e1520003 	cmp	r2, r3
- c000960:	0a000008 	beq	c000988 <actualizar_candidatas+0xa0>
+ c0009d0:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c0009d4:	e2433001 	sub	r3, r3, #1
+ c0009d8:	e1a03183 	lsl	r3, r3, #3
+ c0009dc:	e51b2010 	ldr	r2, [fp, #-16]
+ c0009e0:	e0822003 	add	r2, r2, r3
+ c0009e4:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c0009e8:	e7d22003 	ldrb	r2, [r2, r3]
+ c0009ec:	e59f32dc 	ldr	r3, [pc, #732]	; c000cd0 <actualizar_candidatas+0x350>
+ c0009f0:	e5d33000 	ldrb	r3, [r3]
+ c0009f4:	e1520003 	cmp	r2, r3
+ c0009f8:	0a000008 	beq	c000a20 <actualizar_candidatas+0xa0>
             candidatas[f-1][c] = SI;
- c000964:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000968:	e2433001 	sub	r3, r3, #1
- c00096c:	e1a03183 	lsl	r3, r3, #3
- c000970:	e51b2010 	ldr	r2, [fp, #-16]
- c000974:	e0822003 	add	r2, r2, r3
- c000978:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c00097c:	e59f12b8 	ldr	r1, [pc, #696]	; c000c3c <actualizar_candidatas+0x354>
- c000980:	e5d11000 	ldrb	r1, [r1]
- c000984:	e7c21003 	strb	r1, [r2, r3]
+ c0009fc:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000a00:	e2433001 	sub	r3, r3, #1
+ c000a04:	e1a03183 	lsl	r3, r3, #3
+ c000a08:	e51b2010 	ldr	r2, [fp, #-16]
+ c000a0c:	e0822003 	add	r2, r2, r3
+ c000a10:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000a14:	e59f12b8 	ldr	r1, [pc, #696]	; c000cd4 <actualizar_candidatas+0x354>
+ c000a18:	e5d11000 	ldrb	r1, [r1]
+ c000a1c:	e7c21003 	strb	r1, [r2, r3]
 
         if ((c > 0) && (candidatas[f-1][c-1] != CASILLA_OCUPADA))
- c000988:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c00098c:	e3530000 	cmp	r3, #0
- c000990:	0a000015 	beq	c0009ec <actualizar_candidatas+0x104>
- c000994:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000998:	e2433001 	sub	r3, r3, #1
- c00099c:	e1a03183 	lsl	r3, r3, #3
- c0009a0:	e51b2010 	ldr	r2, [fp, #-16]
- c0009a4:	e0822003 	add	r2, r2, r3
- c0009a8:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c0009ac:	e2433001 	sub	r3, r3, #1
- c0009b0:	e7d22003 	ldrb	r2, [r2, r3]
- c0009b4:	e59f327c 	ldr	r3, [pc, #636]	; c000c38 <actualizar_candidatas+0x350>
- c0009b8:	e5d33000 	ldrb	r3, [r3]
- c0009bc:	e1520003 	cmp	r2, r3
- c0009c0:	0a000009 	beq	c0009ec <actualizar_candidatas+0x104>
+ c000a20:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000a24:	e3530000 	cmp	r3, #0
+ c000a28:	0a000015 	beq	c000a84 <actualizar_candidatas+0x104>
+ c000a2c:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000a30:	e2433001 	sub	r3, r3, #1
+ c000a34:	e1a03183 	lsl	r3, r3, #3
+ c000a38:	e51b2010 	ldr	r2, [fp, #-16]
+ c000a3c:	e0822003 	add	r2, r2, r3
+ c000a40:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000a44:	e2433001 	sub	r3, r3, #1
+ c000a48:	e7d22003 	ldrb	r2, [r2, r3]
+ c000a4c:	e59f327c 	ldr	r3, [pc, #636]	; c000cd0 <actualizar_candidatas+0x350>
+ c000a50:	e5d33000 	ldrb	r3, [r3]
+ c000a54:	e1520003 	cmp	r2, r3
+ c000a58:	0a000009 	beq	c000a84 <actualizar_candidatas+0x104>
             candidatas[f-1][c-1] = SI;
- c0009c4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c0009c8:	e2433001 	sub	r3, r3, #1
- c0009cc:	e1a03183 	lsl	r3, r3, #3
- c0009d0:	e51b2010 	ldr	r2, [fp, #-16]
- c0009d4:	e0822003 	add	r2, r2, r3
- c0009d8:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c0009dc:	e2433001 	sub	r3, r3, #1
- c0009e0:	e59f1254 	ldr	r1, [pc, #596]	; c000c3c <actualizar_candidatas+0x354>
- c0009e4:	e5d11000 	ldrb	r1, [r1]
- c0009e8:	e7c21003 	strb	r1, [r2, r3]
-
-        if ((c < 7) && (candidatas[f-1][c+1] != CASILLA_OCUPADA))
- c0009ec:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c0009f0:	e3530006 	cmp	r3, #6
- c0009f4:	8a000015 	bhi	c000a50 <actualizar_candidatas+0x168>
- c0009f8:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c0009fc:	e2433001 	sub	r3, r3, #1
- c000a00:	e1a03183 	lsl	r3, r3, #3
- c000a04:	e51b2010 	ldr	r2, [fp, #-16]
- c000a08:	e0822003 	add	r2, r2, r3
- c000a0c:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000a10:	e2833001 	add	r3, r3, #1
- c000a14:	e7d22003 	ldrb	r2, [r2, r3]
- c000a18:	e59f3218 	ldr	r3, [pc, #536]	; c000c38 <actualizar_candidatas+0x350>
- c000a1c:	e5d33000 	ldrb	r3, [r3]
- c000a20:	e1520003 	cmp	r2, r3
- c000a24:	0a000009 	beq	c000a50 <actualizar_candidatas+0x168>
-            candidatas[f-1][c+1] = SI;
- c000a28:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000a2c:	e2433001 	sub	r3, r3, #1
- c000a30:	e1a03183 	lsl	r3, r3, #3
- c000a34:	e51b2010 	ldr	r2, [fp, #-16]
- c000a38:	e0822003 	add	r2, r2, r3
- c000a3c:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000a40:	e2833001 	add	r3, r3, #1
- c000a44:	e59f11f0 	ldr	r1, [pc, #496]	; c000c3c <actualizar_candidatas+0x354>
- c000a48:	e5d11000 	ldrb	r1, [r1]
- c000a4c:	e7c21003 	strb	r1, [r2, r3]
-    }
-    if (f < 7)
- c000a50:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000a54:	e3530006 	cmp	r3, #6
- c000a58:	8a000045 	bhi	c000b74 <actualizar_candidatas+0x28c>
-    {
-        if (candidatas[f+1][c] != CASILLA_OCUPADA)
  c000a5c:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000a60:	e2833001 	add	r3, r3, #1
+ c000a60:	e2433001 	sub	r3, r3, #1
  c000a64:	e1a03183 	lsl	r3, r3, #3
  c000a68:	e51b2010 	ldr	r2, [fp, #-16]
  c000a6c:	e0822003 	add	r2, r2, r3
  c000a70:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000a74:	e7d22003 	ldrb	r2, [r2, r3]
- c000a78:	e59f31b8 	ldr	r3, [pc, #440]	; c000c38 <actualizar_candidatas+0x350>
- c000a7c:	e5d33000 	ldrb	r3, [r3]
- c000a80:	e1520003 	cmp	r2, r3
- c000a84:	0a000008 	beq	c000aac <actualizar_candidatas+0x1c4>
+ c000a74:	e2433001 	sub	r3, r3, #1
+ c000a78:	e59f1254 	ldr	r1, [pc, #596]	; c000cd4 <actualizar_candidatas+0x354>
+ c000a7c:	e5d11000 	ldrb	r1, [r1]
+ c000a80:	e7c21003 	strb	r1, [r2, r3]
+
+        if ((c < 7) && (candidatas[f-1][c+1] != CASILLA_OCUPADA))
+ c000a84:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000a88:	e3530006 	cmp	r3, #6
+ c000a8c:	8a000015 	bhi	c000ae8 <actualizar_candidatas+0x168>
+ c000a90:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000a94:	e2433001 	sub	r3, r3, #1
+ c000a98:	e1a03183 	lsl	r3, r3, #3
+ c000a9c:	e51b2010 	ldr	r2, [fp, #-16]
+ c000aa0:	e0822003 	add	r2, r2, r3
+ c000aa4:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000aa8:	e2833001 	add	r3, r3, #1
+ c000aac:	e7d22003 	ldrb	r2, [r2, r3]
+ c000ab0:	e59f3218 	ldr	r3, [pc, #536]	; c000cd0 <actualizar_candidatas+0x350>
+ c000ab4:	e5d33000 	ldrb	r3, [r3]
+ c000ab8:	e1520003 	cmp	r2, r3
+ c000abc:	0a000009 	beq	c000ae8 <actualizar_candidatas+0x168>
+            candidatas[f-1][c+1] = SI;
+ c000ac0:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000ac4:	e2433001 	sub	r3, r3, #1
+ c000ac8:	e1a03183 	lsl	r3, r3, #3
+ c000acc:	e51b2010 	ldr	r2, [fp, #-16]
+ c000ad0:	e0822003 	add	r2, r2, r3
+ c000ad4:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000ad8:	e2833001 	add	r3, r3, #1
+ c000adc:	e59f11f0 	ldr	r1, [pc, #496]	; c000cd4 <actualizar_candidatas+0x354>
+ c000ae0:	e5d11000 	ldrb	r1, [r1]
+ c000ae4:	e7c21003 	strb	r1, [r2, r3]
+    }
+    if (f < 7)
+ c000ae8:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000aec:	e3530006 	cmp	r3, #6
+ c000af0:	8a000045 	bhi	c000c0c <actualizar_candidatas+0x28c>
+    {
+        if (candidatas[f+1][c] != CASILLA_OCUPADA)
+ c000af4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000af8:	e2833001 	add	r3, r3, #1
+ c000afc:	e1a03183 	lsl	r3, r3, #3
+ c000b00:	e51b2010 	ldr	r2, [fp, #-16]
+ c000b04:	e0822003 	add	r2, r2, r3
+ c000b08:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000b0c:	e7d22003 	ldrb	r2, [r2, r3]
+ c000b10:	e59f31b8 	ldr	r3, [pc, #440]	; c000cd0 <actualizar_candidatas+0x350>
+ c000b14:	e5d33000 	ldrb	r3, [r3]
+ c000b18:	e1520003 	cmp	r2, r3
+ c000b1c:	0a000008 	beq	c000b44 <actualizar_candidatas+0x1c4>
             candidatas[f+1][c] = SI;
- c000a88:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000a8c:	e2833001 	add	r3, r3, #1
- c000a90:	e1a03183 	lsl	r3, r3, #3
- c000a94:	e51b2010 	ldr	r2, [fp, #-16]
- c000a98:	e0822003 	add	r2, r2, r3
- c000a9c:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000aa0:	e59f1194 	ldr	r1, [pc, #404]	; c000c3c <actualizar_candidatas+0x354>
- c000aa4:	e5d11000 	ldrb	r1, [r1]
- c000aa8:	e7c21003 	strb	r1, [r2, r3]
+ c000b20:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000b24:	e2833001 	add	r3, r3, #1
+ c000b28:	e1a03183 	lsl	r3, r3, #3
+ c000b2c:	e51b2010 	ldr	r2, [fp, #-16]
+ c000b30:	e0822003 	add	r2, r2, r3
+ c000b34:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000b38:	e59f1194 	ldr	r1, [pc, #404]	; c000cd4 <actualizar_candidatas+0x354>
+ c000b3c:	e5d11000 	ldrb	r1, [r1]
+ c000b40:	e7c21003 	strb	r1, [r2, r3]
 
         if ((c > 0) && (candidatas[f+1][c-1] != CASILLA_OCUPADA))
- c000aac:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000ab0:	e3530000 	cmp	r3, #0
- c000ab4:	0a000015 	beq	c000b10 <actualizar_candidatas+0x228>
- c000ab8:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000abc:	e2833001 	add	r3, r3, #1
- c000ac0:	e1a03183 	lsl	r3, r3, #3
- c000ac4:	e51b2010 	ldr	r2, [fp, #-16]
- c000ac8:	e0822003 	add	r2, r2, r3
- c000acc:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000ad0:	e2433001 	sub	r3, r3, #1
- c000ad4:	e7d22003 	ldrb	r2, [r2, r3]
- c000ad8:	e59f3158 	ldr	r3, [pc, #344]	; c000c38 <actualizar_candidatas+0x350>
- c000adc:	e5d33000 	ldrb	r3, [r3]
- c000ae0:	e1520003 	cmp	r2, r3
- c000ae4:	0a000009 	beq	c000b10 <actualizar_candidatas+0x228>
+ c000b44:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000b48:	e3530000 	cmp	r3, #0
+ c000b4c:	0a000015 	beq	c000ba8 <actualizar_candidatas+0x228>
+ c000b50:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000b54:	e2833001 	add	r3, r3, #1
+ c000b58:	e1a03183 	lsl	r3, r3, #3
+ c000b5c:	e51b2010 	ldr	r2, [fp, #-16]
+ c000b60:	e0822003 	add	r2, r2, r3
+ c000b64:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000b68:	e2433001 	sub	r3, r3, #1
+ c000b6c:	e7d22003 	ldrb	r2, [r2, r3]
+ c000b70:	e59f3158 	ldr	r3, [pc, #344]	; c000cd0 <actualizar_candidatas+0x350>
+ c000b74:	e5d33000 	ldrb	r3, [r3]
+ c000b78:	e1520003 	cmp	r2, r3
+ c000b7c:	0a000009 	beq	c000ba8 <actualizar_candidatas+0x228>
             candidatas[f+1][c-1] = SI;
- c000ae8:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000aec:	e2833001 	add	r3, r3, #1
- c000af0:	e1a03183 	lsl	r3, r3, #3
- c000af4:	e51b2010 	ldr	r2, [fp, #-16]
- c000af8:	e0822003 	add	r2, r2, r3
- c000afc:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000b00:	e2433001 	sub	r3, r3, #1
- c000b04:	e59f1130 	ldr	r1, [pc, #304]	; c000c3c <actualizar_candidatas+0x354>
- c000b08:	e5d11000 	ldrb	r1, [r1]
- c000b0c:	e7c21003 	strb	r1, [r2, r3]
+ c000b80:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000b84:	e2833001 	add	r3, r3, #1
+ c000b88:	e1a03183 	lsl	r3, r3, #3
+ c000b8c:	e51b2010 	ldr	r2, [fp, #-16]
+ c000b90:	e0822003 	add	r2, r2, r3
+ c000b94:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000b98:	e2433001 	sub	r3, r3, #1
+ c000b9c:	e59f1130 	ldr	r1, [pc, #304]	; c000cd4 <actualizar_candidatas+0x354>
+ c000ba0:	e5d11000 	ldrb	r1, [r1]
+ c000ba4:	e7c21003 	strb	r1, [r2, r3]
 
         if ((c < 7) && (candidatas[f+1][c+1] != CASILLA_OCUPADA))
- c000b10:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000b14:	e3530006 	cmp	r3, #6
- c000b18:	8a000015 	bhi	c000b74 <actualizar_candidatas+0x28c>
- c000b1c:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000b20:	e2833001 	add	r3, r3, #1
- c000b24:	e1a03183 	lsl	r3, r3, #3
- c000b28:	e51b2010 	ldr	r2, [fp, #-16]
- c000b2c:	e0822003 	add	r2, r2, r3
- c000b30:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000b34:	e2833001 	add	r3, r3, #1
- c000b38:	e7d22003 	ldrb	r2, [r2, r3]
- c000b3c:	e59f30f4 	ldr	r3, [pc, #244]	; c000c38 <actualizar_candidatas+0x350>
- c000b40:	e5d33000 	ldrb	r3, [r3]
- c000b44:	e1520003 	cmp	r2, r3
- c000b48:	0a000009 	beq	c000b74 <actualizar_candidatas+0x28c>
+ c000ba8:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000bac:	e3530006 	cmp	r3, #6
+ c000bb0:	8a000015 	bhi	c000c0c <actualizar_candidatas+0x28c>
+ c000bb4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000bb8:	e2833001 	add	r3, r3, #1
+ c000bbc:	e1a03183 	lsl	r3, r3, #3
+ c000bc0:	e51b2010 	ldr	r2, [fp, #-16]
+ c000bc4:	e0822003 	add	r2, r2, r3
+ c000bc8:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000bcc:	e2833001 	add	r3, r3, #1
+ c000bd0:	e7d22003 	ldrb	r2, [r2, r3]
+ c000bd4:	e59f30f4 	ldr	r3, [pc, #244]	; c000cd0 <actualizar_candidatas+0x350>
+ c000bd8:	e5d33000 	ldrb	r3, [r3]
+ c000bdc:	e1520003 	cmp	r2, r3
+ c000be0:	0a000009 	beq	c000c0c <actualizar_candidatas+0x28c>
             candidatas[f+1][c+1] = SI;
- c000b4c:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000b50:	e2833001 	add	r3, r3, #1
- c000b54:	e1a03183 	lsl	r3, r3, #3
- c000b58:	e51b2010 	ldr	r2, [fp, #-16]
- c000b5c:	e0822003 	add	r2, r2, r3
- c000b60:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000b64:	e2833001 	add	r3, r3, #1
- c000b68:	e59f10cc 	ldr	r1, [pc, #204]	; c000c3c <actualizar_candidatas+0x354>
- c000b6c:	e5d11000 	ldrb	r1, [r1]
- c000b70:	e7c21003 	strb	r1, [r2, r3]
+ c000be4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000be8:	e2833001 	add	r3, r3, #1
+ c000bec:	e1a03183 	lsl	r3, r3, #3
+ c000bf0:	e51b2010 	ldr	r2, [fp, #-16]
+ c000bf4:	e0822003 	add	r2, r2, r3
+ c000bf8:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000bfc:	e2833001 	add	r3, r3, #1
+ c000c00:	e59f10cc 	ldr	r1, [pc, #204]	; c000cd4 <actualizar_candidatas+0x354>
+ c000c04:	e5d11000 	ldrb	r1, [r1]
+ c000c08:	e7c21003 	strb	r1, [r2, r3]
     }
     if ((c > 0) && (candidatas[f][c-1] != CASILLA_OCUPADA))
- c000b74:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000b78:	e3530000 	cmp	r3, #0
- c000b7c:	0a000013 	beq	c000bd0 <actualizar_candidatas+0x2e8>
- c000b80:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000b84:	e1a03183 	lsl	r3, r3, #3
- c000b88:	e51b2010 	ldr	r2, [fp, #-16]
- c000b8c:	e0822003 	add	r2, r2, r3
- c000b90:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000b94:	e2433001 	sub	r3, r3, #1
- c000b98:	e7d22003 	ldrb	r2, [r2, r3]
- c000b9c:	e59f3094 	ldr	r3, [pc, #148]	; c000c38 <actualizar_candidatas+0x350>
- c000ba0:	e5d33000 	ldrb	r3, [r3]
- c000ba4:	e1520003 	cmp	r2, r3
- c000ba8:	0a000008 	beq	c000bd0 <actualizar_candidatas+0x2e8>
+ c000c0c:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000c10:	e3530000 	cmp	r3, #0
+ c000c14:	0a000013 	beq	c000c68 <actualizar_candidatas+0x2e8>
+ c000c18:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000c1c:	e1a03183 	lsl	r3, r3, #3
+ c000c20:	e51b2010 	ldr	r2, [fp, #-16]
+ c000c24:	e0822003 	add	r2, r2, r3
+ c000c28:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000c2c:	e2433001 	sub	r3, r3, #1
+ c000c30:	e7d22003 	ldrb	r2, [r2, r3]
+ c000c34:	e59f3094 	ldr	r3, [pc, #148]	; c000cd0 <actualizar_candidatas+0x350>
+ c000c38:	e5d33000 	ldrb	r3, [r3]
+ c000c3c:	e1520003 	cmp	r2, r3
+ c000c40:	0a000008 	beq	c000c68 <actualizar_candidatas+0x2e8>
         candidatas[f][c-1] = SI;
- c000bac:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000bb0:	e1a03183 	lsl	r3, r3, #3
- c000bb4:	e51b2010 	ldr	r2, [fp, #-16]
- c000bb8:	e0822003 	add	r2, r2, r3
- c000bbc:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000bc0:	e2433001 	sub	r3, r3, #1
- c000bc4:	e59f1070 	ldr	r1, [pc, #112]	; c000c3c <actualizar_candidatas+0x354>
- c000bc8:	e5d11000 	ldrb	r1, [r1]
- c000bcc:	e7c21003 	strb	r1, [r2, r3]
+ c000c44:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000c48:	e1a03183 	lsl	r3, r3, #3
+ c000c4c:	e51b2010 	ldr	r2, [fp, #-16]
+ c000c50:	e0822003 	add	r2, r2, r3
+ c000c54:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000c58:	e2433001 	sub	r3, r3, #1
+ c000c5c:	e59f1070 	ldr	r1, [pc, #112]	; c000cd4 <actualizar_candidatas+0x354>
+ c000c60:	e5d11000 	ldrb	r1, [r1]
+ c000c64:	e7c21003 	strb	r1, [r2, r3]
 
     if ((c < 7) && (candidatas[f][c+1] != CASILLA_OCUPADA))
- c000bd0:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000bd4:	e3530006 	cmp	r3, #6
- c000bd8:	8a000013 	bhi	c000c2c <actualizar_candidatas+0x344>
- c000bdc:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000be0:	e1a03183 	lsl	r3, r3, #3
- c000be4:	e51b2010 	ldr	r2, [fp, #-16]
- c000be8:	e0822003 	add	r2, r2, r3
- c000bec:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000bf0:	e2833001 	add	r3, r3, #1
- c000bf4:	e7d22003 	ldrb	r2, [r2, r3]
- c000bf8:	e59f3038 	ldr	r3, [pc, #56]	; c000c38 <actualizar_candidatas+0x350>
- c000bfc:	e5d33000 	ldrb	r3, [r3]
- c000c00:	e1520003 	cmp	r2, r3
- c000c04:	0a000008 	beq	c000c2c <actualizar_candidatas+0x344>
+ c000c68:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000c6c:	e3530006 	cmp	r3, #6
+ c000c70:	8a000013 	bhi	c000cc4 <actualizar_candidatas+0x344>
+ c000c74:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000c78:	e1a03183 	lsl	r3, r3, #3
+ c000c7c:	e51b2010 	ldr	r2, [fp, #-16]
+ c000c80:	e0822003 	add	r2, r2, r3
+ c000c84:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000c88:	e2833001 	add	r3, r3, #1
+ c000c8c:	e7d22003 	ldrb	r2, [r2, r3]
+ c000c90:	e59f3038 	ldr	r3, [pc, #56]	; c000cd0 <actualizar_candidatas+0x350>
+ c000c94:	e5d33000 	ldrb	r3, [r3]
+ c000c98:	e1520003 	cmp	r2, r3
+ c000c9c:	0a000008 	beq	c000cc4 <actualizar_candidatas+0x344>
         candidatas[f][c+1] = SI;
- c000c08:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
- c000c0c:	e1a03183 	lsl	r3, r3, #3
- c000c10:	e51b2010 	ldr	r2, [fp, #-16]
- c000c14:	e0822003 	add	r2, r2, r3
- c000c18:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
- c000c1c:	e2833001 	add	r3, r3, #1
- c000c20:	e59f1014 	ldr	r1, [pc, #20]	; c000c3c <actualizar_candidatas+0x354>
- c000c24:	e5d11000 	ldrb	r1, [r1]
- c000c28:	e7c21003 	strb	r1, [r2, r3]
+ c000ca0:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c000ca4:	e1a03183 	lsl	r3, r3, #3
+ c000ca8:	e51b2010 	ldr	r2, [fp, #-16]
+ c000cac:	e0822003 	add	r2, r2, r3
+ c000cb0:	e55b3012 	ldrb	r3, [fp, #-18]	; 0xffffffee
+ c000cb4:	e2833001 	add	r3, r3, #1
+ c000cb8:	e59f1014 	ldr	r1, [pc, #20]	; c000cd4 <actualizar_candidatas+0x354>
+ c000cbc:	e5d11000 	ldrb	r1, [r1]
+ c000cc0:	e7c21003 	strb	r1, [r2, r3]
 }
- c000c2c:	e24bd00c 	sub	sp, fp, #12
- c000c30:	e89d6800 	ldm	sp, {fp, sp, lr}
- c000c34:	e12fff1e 	bx	lr
- c000c38:	0c0013a2 	.word	0x0c0013a2
- c000c3c:	0c0013a1 	.word	0x0c0013a1
+ c000cc4:	e24bd00c 	sub	sp, fp, #12
+ c000cc8:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c000ccc:	e12fff1e 	bx	lr
+ c000cd0:	0c00143a 	.word	0x0c00143a
+ c000cd4:	0c001439 	.word	0x0c001439
 
-0c000c40 <reversi8>:
+0c000cd8 <reversi8>:
 // la razón es que al meterlas en la pila no las pone juntas, y así jugar es más complicado.
 // en esta versión el humano lleva negras y la máquina blancas
 // no se comprueba que el humano mueva correctamente.
 // Sólo que la máquina realice un movimiento correcto.
 void reversi8()
 {
- c000c40:	e1a0c00d 	mov	ip, sp
- c000c44:	e92ddff0 	push	{r4, r5, r6, r7, r8, r9, sl, fp, ip, lr, pc}
- c000c48:	e24cb004 	sub	fp, ip, #4
- c000c4c:	e24ddf4d 	sub	sp, sp, #308	; 0x134
+ c000cd8:	e1a0c00d 	mov	ip, sp
+ c000cdc:	e92ddff0 	push	{r4, r5, r6, r7, r8, r9, sl, fp, ip, lr, pc}
+ c000ce0:	e24cb004 	sub	fp, ip, #4
+ c000ce4:	e24ddf4d 	sub	sp, sp, #308	; 0x134
 
 	 ////////////////////////////////////////////////////////////////////
 	 // Tablero candidatas: se usa para no explorar todas las posiciones del tablero
 	// sólo se exploran las que están alrededor de las fichas colocadas
 	 ////////////////////////////////////////////////////////////////////
 	uint8_t __attribute__ ((aligned (8))) candidatas[DIM][DIM] =
- c000c50:	e59f3734 	ldr	r3, [pc, #1844]	; c00138c <reversi8+0x74c>
- c000c54:	e5d31000 	ldrb	r1, [r3]
- c000c58:	e59f372c 	ldr	r3, [pc, #1836]	; c00138c <reversi8+0x74c>
- c000c5c:	e5d3c000 	ldrb	ip, [r3]
- c000c60:	e59f3724 	ldr	r3, [pc, #1828]	; c00138c <reversi8+0x74c>
- c000c64:	e5d34000 	ldrb	r4, [r3]
- c000c68:	e59f371c 	ldr	r3, [pc, #1820]	; c00138c <reversi8+0x74c>
- c000c6c:	e5d36000 	ldrb	r6, [r3]
- c000c70:	e59f3714 	ldr	r3, [pc, #1812]	; c00138c <reversi8+0x74c>
- c000c74:	e5d38000 	ldrb	r8, [r3]
- c000c78:	e59f370c 	ldr	r3, [pc, #1804]	; c00138c <reversi8+0x74c>
- c000c7c:	e5d39000 	ldrb	r9, [r3]
- c000c80:	e59f3704 	ldr	r3, [pc, #1796]	; c00138c <reversi8+0x74c>
- c000c84:	e5d33000 	ldrb	r3, [r3]
- c000c88:	e50b3090 	str	r3, [fp, #-144]	; 0xffffff70
- c000c8c:	e59f36f8 	ldr	r3, [pc, #1784]	; c00138c <reversi8+0x74c>
- c000c90:	e5d33000 	ldrb	r3, [r3]
- c000c94:	e50b3094 	str	r3, [fp, #-148]	; 0xffffff6c
- c000c98:	e59f36ec 	ldr	r3, [pc, #1772]	; c00138c <reversi8+0x74c>
- c000c9c:	e5d33000 	ldrb	r3, [r3]
- c000ca0:	e50b3098 	str	r3, [fp, #-152]	; 0xffffff68
- c000ca4:	e59f36e0 	ldr	r3, [pc, #1760]	; c00138c <reversi8+0x74c>
- c000ca8:	e5d33000 	ldrb	r3, [r3]
- c000cac:	e50b309c 	str	r3, [fp, #-156]	; 0xffffff64
- c000cb0:	e59f36d4 	ldr	r3, [pc, #1748]	; c00138c <reversi8+0x74c>
- c000cb4:	e5d33000 	ldrb	r3, [r3]
- c000cb8:	e50b30a0 	str	r3, [fp, #-160]	; 0xffffff60
- c000cbc:	e59f36c8 	ldr	r3, [pc, #1736]	; c00138c <reversi8+0x74c>
- c000cc0:	e5d33000 	ldrb	r3, [r3]
- c000cc4:	e50b30a4 	str	r3, [fp, #-164]	; 0xffffff5c
- c000cc8:	e59f36bc 	ldr	r3, [pc, #1724]	; c00138c <reversi8+0x74c>
- c000ccc:	e5d33000 	ldrb	r3, [r3]
- c000cd0:	e50b30a8 	str	r3, [fp, #-168]	; 0xffffff58
- c000cd4:	e59f36b0 	ldr	r3, [pc, #1712]	; c00138c <reversi8+0x74c>
- c000cd8:	e5d33000 	ldrb	r3, [r3]
- c000cdc:	e50b30ac 	str	r3, [fp, #-172]	; 0xffffff54
- c000ce0:	e59f36a4 	ldr	r3, [pc, #1700]	; c00138c <reversi8+0x74c>
- c000ce4:	e5d33000 	ldrb	r3, [r3]
- c000ce8:	e50b30b0 	str	r3, [fp, #-176]	; 0xffffff50
- c000cec:	e59f3698 	ldr	r3, [pc, #1688]	; c00138c <reversi8+0x74c>
- c000cf0:	e5d33000 	ldrb	r3, [r3]
- c000cf4:	e50b30b4 	str	r3, [fp, #-180]	; 0xffffff4c
- c000cf8:	e59f368c 	ldr	r3, [pc, #1676]	; c00138c <reversi8+0x74c>
- c000cfc:	e5d33000 	ldrb	r3, [r3]
- c000d00:	e50b30b8 	str	r3, [fp, #-184]	; 0xffffff48
- c000d04:	e59f3680 	ldr	r3, [pc, #1664]	; c00138c <reversi8+0x74c>
- c000d08:	e5d33000 	ldrb	r3, [r3]
- c000d0c:	e50b30bc 	str	r3, [fp, #-188]	; 0xffffff44
- c000d10:	e59f3674 	ldr	r3, [pc, #1652]	; c00138c <reversi8+0x74c>
- c000d14:	e5d33000 	ldrb	r3, [r3]
- c000d18:	e50b30c0 	str	r3, [fp, #-192]	; 0xffffff40
- c000d1c:	e59f3668 	ldr	r3, [pc, #1640]	; c00138c <reversi8+0x74c>
- c000d20:	e5d33000 	ldrb	r3, [r3]
- c000d24:	e50b30c4 	str	r3, [fp, #-196]	; 0xffffff3c
- c000d28:	e59f365c 	ldr	r3, [pc, #1628]	; c00138c <reversi8+0x74c>
- c000d2c:	e5d33000 	ldrb	r3, [r3]
- c000d30:	e50b30c8 	str	r3, [fp, #-200]	; 0xffffff38
- c000d34:	e59f3650 	ldr	r3, [pc, #1616]	; c00138c <reversi8+0x74c>
- c000d38:	e5d33000 	ldrb	r3, [r3]
- c000d3c:	e50b30cc 	str	r3, [fp, #-204]	; 0xffffff34
- c000d40:	e59f3644 	ldr	r3, [pc, #1604]	; c00138c <reversi8+0x74c>
- c000d44:	e5d33000 	ldrb	r3, [r3]
- c000d48:	e50b30d0 	str	r3, [fp, #-208]	; 0xffffff30
- c000d4c:	e59f3638 	ldr	r3, [pc, #1592]	; c00138c <reversi8+0x74c>
- c000d50:	e5d33000 	ldrb	r3, [r3]
- c000d54:	e50b30d4 	str	r3, [fp, #-212]	; 0xffffff2c
- c000d58:	e59f362c 	ldr	r3, [pc, #1580]	; c00138c <reversi8+0x74c>
- c000d5c:	e5d33000 	ldrb	r3, [r3]
- c000d60:	e50b30d8 	str	r3, [fp, #-216]	; 0xffffff28
- c000d64:	e59f3620 	ldr	r3, [pc, #1568]	; c00138c <reversi8+0x74c>
- c000d68:	e5d33000 	ldrb	r3, [r3]
- c000d6c:	e50b30dc 	str	r3, [fp, #-220]	; 0xffffff24
- c000d70:	e59f3614 	ldr	r3, [pc, #1556]	; c00138c <reversi8+0x74c>
- c000d74:	e5d33000 	ldrb	r3, [r3]
- c000d78:	e50b30e0 	str	r3, [fp, #-224]	; 0xffffff20
- c000d7c:	e59f3608 	ldr	r3, [pc, #1544]	; c00138c <reversi8+0x74c>
- c000d80:	e5d33000 	ldrb	r3, [r3]
- c000d84:	e50b30e4 	str	r3, [fp, #-228]	; 0xffffff1c
- c000d88:	e59f35fc 	ldr	r3, [pc, #1532]	; c00138c <reversi8+0x74c>
- c000d8c:	e5d33000 	ldrb	r3, [r3]
- c000d90:	e50b30e8 	str	r3, [fp, #-232]	; 0xffffff18
- c000d94:	e59f35f0 	ldr	r3, [pc, #1520]	; c00138c <reversi8+0x74c>
- c000d98:	e5d33000 	ldrb	r3, [r3]
- c000d9c:	e50b30ec 	str	r3, [fp, #-236]	; 0xffffff14
- c000da0:	e59f35e4 	ldr	r3, [pc, #1508]	; c00138c <reversi8+0x74c>
- c000da4:	e5d33000 	ldrb	r3, [r3]
- c000da8:	e50b30f0 	str	r3, [fp, #-240]	; 0xffffff10
- c000dac:	e59f35d8 	ldr	r3, [pc, #1496]	; c00138c <reversi8+0x74c>
- c000db0:	e5d33000 	ldrb	r3, [r3]
- c000db4:	e50b30f4 	str	r3, [fp, #-244]	; 0xffffff0c
- c000db8:	e59f35cc 	ldr	r3, [pc, #1484]	; c00138c <reversi8+0x74c>
- c000dbc:	e5d33000 	ldrb	r3, [r3]
- c000dc0:	e50b30f8 	str	r3, [fp, #-248]	; 0xffffff08
- c000dc4:	e59f35c0 	ldr	r3, [pc, #1472]	; c00138c <reversi8+0x74c>
- c000dc8:	e5d33000 	ldrb	r3, [r3]
- c000dcc:	e50b30fc 	str	r3, [fp, #-252]	; 0xffffff04
- c000dd0:	e59f35b4 	ldr	r3, [pc, #1460]	; c00138c <reversi8+0x74c>
- c000dd4:	e5d33000 	ldrb	r3, [r3]
- c000dd8:	e50b3100 	str	r3, [fp, #-256]	; 0xffffff00
- c000ddc:	e59f35a8 	ldr	r3, [pc, #1448]	; c00138c <reversi8+0x74c>
- c000de0:	e5d33000 	ldrb	r3, [r3]
- c000de4:	e50b3104 	str	r3, [fp, #-260]	; 0xfffffefc
- c000de8:	e59f359c 	ldr	r3, [pc, #1436]	; c00138c <reversi8+0x74c>
- c000dec:	e5d33000 	ldrb	r3, [r3]
- c000df0:	e50b3108 	str	r3, [fp, #-264]	; 0xfffffef8
- c000df4:	e59f3590 	ldr	r3, [pc, #1424]	; c00138c <reversi8+0x74c>
- c000df8:	e5d33000 	ldrb	r3, [r3]
- c000dfc:	e50b310c 	str	r3, [fp, #-268]	; 0xfffffef4
- c000e00:	e59f3584 	ldr	r3, [pc, #1412]	; c00138c <reversi8+0x74c>
- c000e04:	e5d33000 	ldrb	r3, [r3]
- c000e08:	e50b3110 	str	r3, [fp, #-272]	; 0xfffffef0
- c000e0c:	e59f3578 	ldr	r3, [pc, #1400]	; c00138c <reversi8+0x74c>
- c000e10:	e5d33000 	ldrb	r3, [r3]
- c000e14:	e50b3114 	str	r3, [fp, #-276]	; 0xfffffeec
- c000e18:	e59f356c 	ldr	r3, [pc, #1388]	; c00138c <reversi8+0x74c>
- c000e1c:	e5d33000 	ldrb	r3, [r3]
- c000e20:	e50b3118 	str	r3, [fp, #-280]	; 0xfffffee8
- c000e24:	e59f3560 	ldr	r3, [pc, #1376]	; c00138c <reversi8+0x74c>
- c000e28:	e5d33000 	ldrb	r3, [r3]
- c000e2c:	e50b311c 	str	r3, [fp, #-284]	; 0xfffffee4
- c000e30:	e59f3554 	ldr	r3, [pc, #1364]	; c00138c <reversi8+0x74c>
- c000e34:	e5d33000 	ldrb	r3, [r3]
- c000e38:	e50b3120 	str	r3, [fp, #-288]	; 0xfffffee0
- c000e3c:	e59f3548 	ldr	r3, [pc, #1352]	; c00138c <reversi8+0x74c>
- c000e40:	e5d33000 	ldrb	r3, [r3]
- c000e44:	e50b3124 	str	r3, [fp, #-292]	; 0xfffffedc
- c000e48:	e59f353c 	ldr	r3, [pc, #1340]	; c00138c <reversi8+0x74c>
- c000e4c:	e5d33000 	ldrb	r3, [r3]
- c000e50:	e50b3128 	str	r3, [fp, #-296]	; 0xfffffed8
- c000e54:	e59f3530 	ldr	r3, [pc, #1328]	; c00138c <reversi8+0x74c>
- c000e58:	e5d33000 	ldrb	r3, [r3]
- c000e5c:	e50b312c 	str	r3, [fp, #-300]	; 0xfffffed4
- c000e60:	e59f3524 	ldr	r3, [pc, #1316]	; c00138c <reversi8+0x74c>
- c000e64:	e5d33000 	ldrb	r3, [r3]
- c000e68:	e50b3130 	str	r3, [fp, #-304]	; 0xfffffed0
- c000e6c:	e59f3518 	ldr	r3, [pc, #1304]	; c00138c <reversi8+0x74c>
- c000e70:	e5d33000 	ldrb	r3, [r3]
- c000e74:	e50b3134 	str	r3, [fp, #-308]	; 0xfffffecc
- c000e78:	e59f350c 	ldr	r3, [pc, #1292]	; c00138c <reversi8+0x74c>
- c000e7c:	e5d33000 	ldrb	r3, [r3]
- c000e80:	e50b3138 	str	r3, [fp, #-312]	; 0xfffffec8
- c000e84:	e59f3500 	ldr	r3, [pc, #1280]	; c00138c <reversi8+0x74c>
- c000e88:	e5d33000 	ldrb	r3, [r3]
- c000e8c:	e50b313c 	str	r3, [fp, #-316]	; 0xfffffec4
- c000e90:	e59f34f4 	ldr	r3, [pc, #1268]	; c00138c <reversi8+0x74c>
- c000e94:	e5d33000 	ldrb	r3, [r3]
- c000e98:	e50b3140 	str	r3, [fp, #-320]	; 0xfffffec0
- c000e9c:	e59f34e8 	ldr	r3, [pc, #1256]	; c00138c <reversi8+0x74c>
- c000ea0:	e5d33000 	ldrb	r3, [r3]
- c000ea4:	e50b3144 	str	r3, [fp, #-324]	; 0xfffffebc
- c000ea8:	e59f34dc 	ldr	r3, [pc, #1244]	; c00138c <reversi8+0x74c>
- c000eac:	e5d33000 	ldrb	r3, [r3]
- c000eb0:	e50b3148 	str	r3, [fp, #-328]	; 0xfffffeb8
- c000eb4:	e59f34d0 	ldr	r3, [pc, #1232]	; c00138c <reversi8+0x74c>
- c000eb8:	e5d33000 	ldrb	r3, [r3]
- c000ebc:	e50b314c 	str	r3, [fp, #-332]	; 0xfffffeb4
- c000ec0:	e59f34c4 	ldr	r3, [pc, #1220]	; c00138c <reversi8+0x74c>
- c000ec4:	e5d33000 	ldrb	r3, [r3]
- c000ec8:	e50b3150 	str	r3, [fp, #-336]	; 0xfffffeb0
- c000ecc:	e59f34b8 	ldr	r3, [pc, #1208]	; c00138c <reversi8+0x74c>
- c000ed0:	e5d33000 	ldrb	r3, [r3]
- c000ed4:	e50b3154 	str	r3, [fp, #-340]	; 0xfffffeac
- c000ed8:	e59f34ac 	ldr	r3, [pc, #1196]	; c00138c <reversi8+0x74c>
- c000edc:	e5d33000 	ldrb	r3, [r3]
- c000ee0:	e50b3158 	str	r3, [fp, #-344]	; 0xfffffea8
- c000ee4:	e59f34a0 	ldr	r3, [pc, #1184]	; c00138c <reversi8+0x74c>
- c000ee8:	e5d33000 	ldrb	r3, [r3]
- c000eec:	e50b315c 	str	r3, [fp, #-348]	; 0xfffffea4
- c000ef0:	e59f3494 	ldr	r3, [pc, #1172]	; c00138c <reversi8+0x74c>
- c000ef4:	e5d3a000 	ldrb	sl, [r3]
- c000ef8:	e59f348c 	ldr	r3, [pc, #1164]	; c00138c <reversi8+0x74c>
- c000efc:	e5d37000 	ldrb	r7, [r3]
- c000f00:	e59f3484 	ldr	r3, [pc, #1156]	; c00138c <reversi8+0x74c>
- c000f04:	e5d35000 	ldrb	r5, [r3]
- c000f08:	e59f347c 	ldr	r3, [pc, #1148]	; c00138c <reversi8+0x74c>
- c000f0c:	e5d3e000 	ldrb	lr, [r3]
- c000f10:	e59f3474 	ldr	r3, [pc, #1140]	; c00138c <reversi8+0x74c>
- c000f14:	e5d30000 	ldrb	r0, [r3]
- c000f18:	e59f346c 	ldr	r3, [pc, #1132]	; c00138c <reversi8+0x74c>
- c000f1c:	e5d32000 	ldrb	r2, [r3]
- c000f20:	e1a03001 	mov	r3, r1
- c000f24:	e54b307c 	strb	r3, [fp, #-124]	; 0xffffff84
- c000f28:	e1a0300c 	mov	r3, ip
- c000f2c:	e54b307b 	strb	r3, [fp, #-123]	; 0xffffff85
- c000f30:	e1a03004 	mov	r3, r4
- c000f34:	e54b307a 	strb	r3, [fp, #-122]	; 0xffffff86
- c000f38:	e1a03006 	mov	r3, r6
- c000f3c:	e54b3079 	strb	r3, [fp, #-121]	; 0xffffff87
- c000f40:	e1a03008 	mov	r3, r8
- c000f44:	e54b3078 	strb	r3, [fp, #-120]	; 0xffffff88
- c000f48:	e1a03009 	mov	r3, r9
- c000f4c:	e54b3077 	strb	r3, [fp, #-119]	; 0xffffff89
- c000f50:	e51b1090 	ldr	r1, [fp, #-144]	; 0xffffff70
- c000f54:	e1a03001 	mov	r3, r1
- c000f58:	e54b3076 	strb	r3, [fp, #-118]	; 0xffffff8a
- c000f5c:	e51b1094 	ldr	r1, [fp, #-148]	; 0xffffff6c
- c000f60:	e1a03001 	mov	r3, r1
- c000f64:	e54b3075 	strb	r3, [fp, #-117]	; 0xffffff8b
- c000f68:	e51b1098 	ldr	r1, [fp, #-152]	; 0xffffff68
- c000f6c:	e1a03001 	mov	r3, r1
- c000f70:	e54b3074 	strb	r3, [fp, #-116]	; 0xffffff8c
- c000f74:	e51b109c 	ldr	r1, [fp, #-156]	; 0xffffff64
- c000f78:	e1a03001 	mov	r3, r1
- c000f7c:	e54b3073 	strb	r3, [fp, #-115]	; 0xffffff8d
- c000f80:	e51b10a0 	ldr	r1, [fp, #-160]	; 0xffffff60
- c000f84:	e1a03001 	mov	r3, r1
- c000f88:	e54b3072 	strb	r3, [fp, #-114]	; 0xffffff8e
- c000f8c:	e51b10a4 	ldr	r1, [fp, #-164]	; 0xffffff5c
- c000f90:	e1a03001 	mov	r3, r1
- c000f94:	e54b3071 	strb	r3, [fp, #-113]	; 0xffffff8f
- c000f98:	e51b10a8 	ldr	r1, [fp, #-168]	; 0xffffff58
- c000f9c:	e1a03001 	mov	r3, r1
- c000fa0:	e54b3070 	strb	r3, [fp, #-112]	; 0xffffff90
- c000fa4:	e51b10ac 	ldr	r1, [fp, #-172]	; 0xffffff54
- c000fa8:	e1a03001 	mov	r3, r1
- c000fac:	e54b306f 	strb	r3, [fp, #-111]	; 0xffffff91
- c000fb0:	e51b10b0 	ldr	r1, [fp, #-176]	; 0xffffff50
- c000fb4:	e1a03001 	mov	r3, r1
- c000fb8:	e54b306e 	strb	r3, [fp, #-110]	; 0xffffff92
- c000fbc:	e51b10b4 	ldr	r1, [fp, #-180]	; 0xffffff4c
- c000fc0:	e1a03001 	mov	r3, r1
- c000fc4:	e54b306d 	strb	r3, [fp, #-109]	; 0xffffff93
- c000fc8:	e51b10b8 	ldr	r1, [fp, #-184]	; 0xffffff48
- c000fcc:	e1a03001 	mov	r3, r1
- c000fd0:	e54b306c 	strb	r3, [fp, #-108]	; 0xffffff94
- c000fd4:	e51b10bc 	ldr	r1, [fp, #-188]	; 0xffffff44
- c000fd8:	e1a03001 	mov	r3, r1
- c000fdc:	e54b306b 	strb	r3, [fp, #-107]	; 0xffffff95
- c000fe0:	e51b10c0 	ldr	r1, [fp, #-192]	; 0xffffff40
- c000fe4:	e1a03001 	mov	r3, r1
- c000fe8:	e54b306a 	strb	r3, [fp, #-106]	; 0xffffff96
- c000fec:	e51b10c4 	ldr	r1, [fp, #-196]	; 0xffffff3c
- c000ff0:	e1a03001 	mov	r3, r1
- c000ff4:	e54b3069 	strb	r3, [fp, #-105]	; 0xffffff97
- c000ff8:	e51b10c8 	ldr	r1, [fp, #-200]	; 0xffffff38
- c000ffc:	e1a03001 	mov	r3, r1
- c001000:	e54b3068 	strb	r3, [fp, #-104]	; 0xffffff98
- c001004:	e51b10cc 	ldr	r1, [fp, #-204]	; 0xffffff34
- c001008:	e1a03001 	mov	r3, r1
- c00100c:	e54b3067 	strb	r3, [fp, #-103]	; 0xffffff99
- c001010:	e51b10d0 	ldr	r1, [fp, #-208]	; 0xffffff30
- c001014:	e1a03001 	mov	r3, r1
- c001018:	e54b3066 	strb	r3, [fp, #-102]	; 0xffffff9a
- c00101c:	e51b10d4 	ldr	r1, [fp, #-212]	; 0xffffff2c
- c001020:	e1a03001 	mov	r3, r1
- c001024:	e54b3065 	strb	r3, [fp, #-101]	; 0xffffff9b
- c001028:	e51b10d8 	ldr	r1, [fp, #-216]	; 0xffffff28
- c00102c:	e1a03001 	mov	r3, r1
- c001030:	e54b3064 	strb	r3, [fp, #-100]	; 0xffffff9c
- c001034:	e51b10dc 	ldr	r1, [fp, #-220]	; 0xffffff24
- c001038:	e1a03001 	mov	r3, r1
- c00103c:	e54b3063 	strb	r3, [fp, #-99]	; 0xffffff9d
- c001040:	e51b10e0 	ldr	r1, [fp, #-224]	; 0xffffff20
- c001044:	e1a03001 	mov	r3, r1
- c001048:	e54b3062 	strb	r3, [fp, #-98]	; 0xffffff9e
- c00104c:	e51b10e4 	ldr	r1, [fp, #-228]	; 0xffffff1c
- c001050:	e1a03001 	mov	r3, r1
- c001054:	e54b3061 	strb	r3, [fp, #-97]	; 0xffffff9f
- c001058:	e51b10e8 	ldr	r1, [fp, #-232]	; 0xffffff18
- c00105c:	e1a03001 	mov	r3, r1
- c001060:	e54b3060 	strb	r3, [fp, #-96]	; 0xffffffa0
- c001064:	e51b10ec 	ldr	r1, [fp, #-236]	; 0xffffff14
- c001068:	e1a03001 	mov	r3, r1
- c00106c:	e54b305f 	strb	r3, [fp, #-95]	; 0xffffffa1
- c001070:	e51b10f0 	ldr	r1, [fp, #-240]	; 0xffffff10
- c001074:	e1a03001 	mov	r3, r1
- c001078:	e54b305e 	strb	r3, [fp, #-94]	; 0xffffffa2
- c00107c:	e51b10f4 	ldr	r1, [fp, #-244]	; 0xffffff0c
- c001080:	e1a03001 	mov	r3, r1
- c001084:	e54b305d 	strb	r3, [fp, #-93]	; 0xffffffa3
- c001088:	e51b10f8 	ldr	r1, [fp, #-248]	; 0xffffff08
- c00108c:	e1a03001 	mov	r3, r1
- c001090:	e54b305c 	strb	r3, [fp, #-92]	; 0xffffffa4
- c001094:	e51b10fc 	ldr	r1, [fp, #-252]	; 0xffffff04
- c001098:	e1a03001 	mov	r3, r1
- c00109c:	e54b305b 	strb	r3, [fp, #-91]	; 0xffffffa5
- c0010a0:	e51b1100 	ldr	r1, [fp, #-256]	; 0xffffff00
- c0010a4:	e1a03001 	mov	r3, r1
- c0010a8:	e54b305a 	strb	r3, [fp, #-90]	; 0xffffffa6
- c0010ac:	e51b1104 	ldr	r1, [fp, #-260]	; 0xfffffefc
- c0010b0:	e1a03001 	mov	r3, r1
- c0010b4:	e54b3059 	strb	r3, [fp, #-89]	; 0xffffffa7
- c0010b8:	e51b1108 	ldr	r1, [fp, #-264]	; 0xfffffef8
- c0010bc:	e1a03001 	mov	r3, r1
- c0010c0:	e54b3058 	strb	r3, [fp, #-88]	; 0xffffffa8
- c0010c4:	e51b110c 	ldr	r1, [fp, #-268]	; 0xfffffef4
- c0010c8:	e1a03001 	mov	r3, r1
- c0010cc:	e54b3057 	strb	r3, [fp, #-87]	; 0xffffffa9
- c0010d0:	e51b1110 	ldr	r1, [fp, #-272]	; 0xfffffef0
- c0010d4:	e1a03001 	mov	r3, r1
- c0010d8:	e54b3056 	strb	r3, [fp, #-86]	; 0xffffffaa
- c0010dc:	e51b1114 	ldr	r1, [fp, #-276]	; 0xfffffeec
- c0010e0:	e1a03001 	mov	r3, r1
- c0010e4:	e54b3055 	strb	r3, [fp, #-85]	; 0xffffffab
- c0010e8:	e51b1118 	ldr	r1, [fp, #-280]	; 0xfffffee8
- c0010ec:	e1a03001 	mov	r3, r1
- c0010f0:	e54b3054 	strb	r3, [fp, #-84]	; 0xffffffac
- c0010f4:	e51b111c 	ldr	r1, [fp, #-284]	; 0xfffffee4
- c0010f8:	e1a03001 	mov	r3, r1
- c0010fc:	e54b3053 	strb	r3, [fp, #-83]	; 0xffffffad
- c001100:	e51b1120 	ldr	r1, [fp, #-288]	; 0xfffffee0
- c001104:	e1a03001 	mov	r3, r1
- c001108:	e54b3052 	strb	r3, [fp, #-82]	; 0xffffffae
- c00110c:	e51b1124 	ldr	r1, [fp, #-292]	; 0xfffffedc
- c001110:	e1a03001 	mov	r3, r1
- c001114:	e54b3051 	strb	r3, [fp, #-81]	; 0xffffffaf
- c001118:	e51b1128 	ldr	r1, [fp, #-296]	; 0xfffffed8
- c00111c:	e1a03001 	mov	r3, r1
- c001120:	e54b3050 	strb	r3, [fp, #-80]	; 0xffffffb0
- c001124:	e51b112c 	ldr	r1, [fp, #-300]	; 0xfffffed4
- c001128:	e1a03001 	mov	r3, r1
- c00112c:	e54b304f 	strb	r3, [fp, #-79]	; 0xffffffb1
- c001130:	e51b1130 	ldr	r1, [fp, #-304]	; 0xfffffed0
- c001134:	e1a03001 	mov	r3, r1
- c001138:	e54b304e 	strb	r3, [fp, #-78]	; 0xffffffb2
- c00113c:	e51b1134 	ldr	r1, [fp, #-308]	; 0xfffffecc
- c001140:	e1a03001 	mov	r3, r1
- c001144:	e54b304d 	strb	r3, [fp, #-77]	; 0xffffffb3
- c001148:	e51b1138 	ldr	r1, [fp, #-312]	; 0xfffffec8
- c00114c:	e1a03001 	mov	r3, r1
- c001150:	e54b304c 	strb	r3, [fp, #-76]	; 0xffffffb4
- c001154:	e51b113c 	ldr	r1, [fp, #-316]	; 0xfffffec4
- c001158:	e1a03001 	mov	r3, r1
- c00115c:	e54b304b 	strb	r3, [fp, #-75]	; 0xffffffb5
- c001160:	e51b1140 	ldr	r1, [fp, #-320]	; 0xfffffec0
- c001164:	e1a03001 	mov	r3, r1
- c001168:	e54b304a 	strb	r3, [fp, #-74]	; 0xffffffb6
- c00116c:	e51b1144 	ldr	r1, [fp, #-324]	; 0xfffffebc
- c001170:	e1a03001 	mov	r3, r1
- c001174:	e54b3049 	strb	r3, [fp, #-73]	; 0xffffffb7
- c001178:	e51b1148 	ldr	r1, [fp, #-328]	; 0xfffffeb8
- c00117c:	e1a03001 	mov	r3, r1
- c001180:	e54b3048 	strb	r3, [fp, #-72]	; 0xffffffb8
- c001184:	e51b114c 	ldr	r1, [fp, #-332]	; 0xfffffeb4
- c001188:	e1a03001 	mov	r3, r1
- c00118c:	e54b3047 	strb	r3, [fp, #-71]	; 0xffffffb9
- c001190:	e51b1150 	ldr	r1, [fp, #-336]	; 0xfffffeb0
- c001194:	e1a03001 	mov	r3, r1
- c001198:	e54b3046 	strb	r3, [fp, #-70]	; 0xffffffba
- c00119c:	e51b1154 	ldr	r1, [fp, #-340]	; 0xfffffeac
- c0011a0:	e1a03001 	mov	r3, r1
- c0011a4:	e54b3045 	strb	r3, [fp, #-69]	; 0xffffffbb
- c0011a8:	e51b1158 	ldr	r1, [fp, #-344]	; 0xfffffea8
- c0011ac:	e1a03001 	mov	r3, r1
- c0011b0:	e54b3044 	strb	r3, [fp, #-68]	; 0xffffffbc
- c0011b4:	e51b115c 	ldr	r1, [fp, #-348]	; 0xfffffea4
- c0011b8:	e1a03001 	mov	r3, r1
- c0011bc:	e54b3043 	strb	r3, [fp, #-67]	; 0xffffffbd
- c0011c0:	e1a0300a 	mov	r3, sl
- c0011c4:	e54b3042 	strb	r3, [fp, #-66]	; 0xffffffbe
- c0011c8:	e1a03007 	mov	r3, r7
- c0011cc:	e54b3041 	strb	r3, [fp, #-65]	; 0xffffffbf
- c0011d0:	e1a03005 	mov	r3, r5
- c0011d4:	e54b3040 	strb	r3, [fp, #-64]	; 0xffffffc0
- c0011d8:	e1a0300e 	mov	r3, lr
- c0011dc:	e54b303f 	strb	r3, [fp, #-63]	; 0xffffffc1
- c0011e0:	e1a03000 	mov	r3, r0
- c0011e4:	e54b303e 	strb	r3, [fp, #-62]	; 0xffffffc2
- c0011e8:	e1a03002 	mov	r3, r2
- c0011ec:	e54b303d 	strb	r3, [fp, #-61]	; 0xffffffc3
+ c000ce8:	e59f3734 	ldr	r3, [pc, #1844]	; c001424 <reversi8+0x74c>
+ c000cec:	e5d31000 	ldrb	r1, [r3]
+ c000cf0:	e59f372c 	ldr	r3, [pc, #1836]	; c001424 <reversi8+0x74c>
+ c000cf4:	e5d3c000 	ldrb	ip, [r3]
+ c000cf8:	e59f3724 	ldr	r3, [pc, #1828]	; c001424 <reversi8+0x74c>
+ c000cfc:	e5d34000 	ldrb	r4, [r3]
+ c000d00:	e59f371c 	ldr	r3, [pc, #1820]	; c001424 <reversi8+0x74c>
+ c000d04:	e5d36000 	ldrb	r6, [r3]
+ c000d08:	e59f3714 	ldr	r3, [pc, #1812]	; c001424 <reversi8+0x74c>
+ c000d0c:	e5d38000 	ldrb	r8, [r3]
+ c000d10:	e59f370c 	ldr	r3, [pc, #1804]	; c001424 <reversi8+0x74c>
+ c000d14:	e5d39000 	ldrb	r9, [r3]
+ c000d18:	e59f3704 	ldr	r3, [pc, #1796]	; c001424 <reversi8+0x74c>
+ c000d1c:	e5d33000 	ldrb	r3, [r3]
+ c000d20:	e50b3090 	str	r3, [fp, #-144]	; 0xffffff70
+ c000d24:	e59f36f8 	ldr	r3, [pc, #1784]	; c001424 <reversi8+0x74c>
+ c000d28:	e5d33000 	ldrb	r3, [r3]
+ c000d2c:	e50b3094 	str	r3, [fp, #-148]	; 0xffffff6c
+ c000d30:	e59f36ec 	ldr	r3, [pc, #1772]	; c001424 <reversi8+0x74c>
+ c000d34:	e5d33000 	ldrb	r3, [r3]
+ c000d38:	e50b3098 	str	r3, [fp, #-152]	; 0xffffff68
+ c000d3c:	e59f36e0 	ldr	r3, [pc, #1760]	; c001424 <reversi8+0x74c>
+ c000d40:	e5d33000 	ldrb	r3, [r3]
+ c000d44:	e50b309c 	str	r3, [fp, #-156]	; 0xffffff64
+ c000d48:	e59f36d4 	ldr	r3, [pc, #1748]	; c001424 <reversi8+0x74c>
+ c000d4c:	e5d33000 	ldrb	r3, [r3]
+ c000d50:	e50b30a0 	str	r3, [fp, #-160]	; 0xffffff60
+ c000d54:	e59f36c8 	ldr	r3, [pc, #1736]	; c001424 <reversi8+0x74c>
+ c000d58:	e5d33000 	ldrb	r3, [r3]
+ c000d5c:	e50b30a4 	str	r3, [fp, #-164]	; 0xffffff5c
+ c000d60:	e59f36bc 	ldr	r3, [pc, #1724]	; c001424 <reversi8+0x74c>
+ c000d64:	e5d33000 	ldrb	r3, [r3]
+ c000d68:	e50b30a8 	str	r3, [fp, #-168]	; 0xffffff58
+ c000d6c:	e59f36b0 	ldr	r3, [pc, #1712]	; c001424 <reversi8+0x74c>
+ c000d70:	e5d33000 	ldrb	r3, [r3]
+ c000d74:	e50b30ac 	str	r3, [fp, #-172]	; 0xffffff54
+ c000d78:	e59f36a4 	ldr	r3, [pc, #1700]	; c001424 <reversi8+0x74c>
+ c000d7c:	e5d33000 	ldrb	r3, [r3]
+ c000d80:	e50b30b0 	str	r3, [fp, #-176]	; 0xffffff50
+ c000d84:	e59f3698 	ldr	r3, [pc, #1688]	; c001424 <reversi8+0x74c>
+ c000d88:	e5d33000 	ldrb	r3, [r3]
+ c000d8c:	e50b30b4 	str	r3, [fp, #-180]	; 0xffffff4c
+ c000d90:	e59f368c 	ldr	r3, [pc, #1676]	; c001424 <reversi8+0x74c>
+ c000d94:	e5d33000 	ldrb	r3, [r3]
+ c000d98:	e50b30b8 	str	r3, [fp, #-184]	; 0xffffff48
+ c000d9c:	e59f3680 	ldr	r3, [pc, #1664]	; c001424 <reversi8+0x74c>
+ c000da0:	e5d33000 	ldrb	r3, [r3]
+ c000da4:	e50b30bc 	str	r3, [fp, #-188]	; 0xffffff44
+ c000da8:	e59f3674 	ldr	r3, [pc, #1652]	; c001424 <reversi8+0x74c>
+ c000dac:	e5d33000 	ldrb	r3, [r3]
+ c000db0:	e50b30c0 	str	r3, [fp, #-192]	; 0xffffff40
+ c000db4:	e59f3668 	ldr	r3, [pc, #1640]	; c001424 <reversi8+0x74c>
+ c000db8:	e5d33000 	ldrb	r3, [r3]
+ c000dbc:	e50b30c4 	str	r3, [fp, #-196]	; 0xffffff3c
+ c000dc0:	e59f365c 	ldr	r3, [pc, #1628]	; c001424 <reversi8+0x74c>
+ c000dc4:	e5d33000 	ldrb	r3, [r3]
+ c000dc8:	e50b30c8 	str	r3, [fp, #-200]	; 0xffffff38
+ c000dcc:	e59f3650 	ldr	r3, [pc, #1616]	; c001424 <reversi8+0x74c>
+ c000dd0:	e5d33000 	ldrb	r3, [r3]
+ c000dd4:	e50b30cc 	str	r3, [fp, #-204]	; 0xffffff34
+ c000dd8:	e59f3644 	ldr	r3, [pc, #1604]	; c001424 <reversi8+0x74c>
+ c000ddc:	e5d33000 	ldrb	r3, [r3]
+ c000de0:	e50b30d0 	str	r3, [fp, #-208]	; 0xffffff30
+ c000de4:	e59f3638 	ldr	r3, [pc, #1592]	; c001424 <reversi8+0x74c>
+ c000de8:	e5d33000 	ldrb	r3, [r3]
+ c000dec:	e50b30d4 	str	r3, [fp, #-212]	; 0xffffff2c
+ c000df0:	e59f362c 	ldr	r3, [pc, #1580]	; c001424 <reversi8+0x74c>
+ c000df4:	e5d33000 	ldrb	r3, [r3]
+ c000df8:	e50b30d8 	str	r3, [fp, #-216]	; 0xffffff28
+ c000dfc:	e59f3620 	ldr	r3, [pc, #1568]	; c001424 <reversi8+0x74c>
+ c000e00:	e5d33000 	ldrb	r3, [r3]
+ c000e04:	e50b30dc 	str	r3, [fp, #-220]	; 0xffffff24
+ c000e08:	e59f3614 	ldr	r3, [pc, #1556]	; c001424 <reversi8+0x74c>
+ c000e0c:	e5d33000 	ldrb	r3, [r3]
+ c000e10:	e50b30e0 	str	r3, [fp, #-224]	; 0xffffff20
+ c000e14:	e59f3608 	ldr	r3, [pc, #1544]	; c001424 <reversi8+0x74c>
+ c000e18:	e5d33000 	ldrb	r3, [r3]
+ c000e1c:	e50b30e4 	str	r3, [fp, #-228]	; 0xffffff1c
+ c000e20:	e59f35fc 	ldr	r3, [pc, #1532]	; c001424 <reversi8+0x74c>
+ c000e24:	e5d33000 	ldrb	r3, [r3]
+ c000e28:	e50b30e8 	str	r3, [fp, #-232]	; 0xffffff18
+ c000e2c:	e59f35f0 	ldr	r3, [pc, #1520]	; c001424 <reversi8+0x74c>
+ c000e30:	e5d33000 	ldrb	r3, [r3]
+ c000e34:	e50b30ec 	str	r3, [fp, #-236]	; 0xffffff14
+ c000e38:	e59f35e4 	ldr	r3, [pc, #1508]	; c001424 <reversi8+0x74c>
+ c000e3c:	e5d33000 	ldrb	r3, [r3]
+ c000e40:	e50b30f0 	str	r3, [fp, #-240]	; 0xffffff10
+ c000e44:	e59f35d8 	ldr	r3, [pc, #1496]	; c001424 <reversi8+0x74c>
+ c000e48:	e5d33000 	ldrb	r3, [r3]
+ c000e4c:	e50b30f4 	str	r3, [fp, #-244]	; 0xffffff0c
+ c000e50:	e59f35cc 	ldr	r3, [pc, #1484]	; c001424 <reversi8+0x74c>
+ c000e54:	e5d33000 	ldrb	r3, [r3]
+ c000e58:	e50b30f8 	str	r3, [fp, #-248]	; 0xffffff08
+ c000e5c:	e59f35c0 	ldr	r3, [pc, #1472]	; c001424 <reversi8+0x74c>
+ c000e60:	e5d33000 	ldrb	r3, [r3]
+ c000e64:	e50b30fc 	str	r3, [fp, #-252]	; 0xffffff04
+ c000e68:	e59f35b4 	ldr	r3, [pc, #1460]	; c001424 <reversi8+0x74c>
+ c000e6c:	e5d33000 	ldrb	r3, [r3]
+ c000e70:	e50b3100 	str	r3, [fp, #-256]	; 0xffffff00
+ c000e74:	e59f35a8 	ldr	r3, [pc, #1448]	; c001424 <reversi8+0x74c>
+ c000e78:	e5d33000 	ldrb	r3, [r3]
+ c000e7c:	e50b3104 	str	r3, [fp, #-260]	; 0xfffffefc
+ c000e80:	e59f359c 	ldr	r3, [pc, #1436]	; c001424 <reversi8+0x74c>
+ c000e84:	e5d33000 	ldrb	r3, [r3]
+ c000e88:	e50b3108 	str	r3, [fp, #-264]	; 0xfffffef8
+ c000e8c:	e59f3590 	ldr	r3, [pc, #1424]	; c001424 <reversi8+0x74c>
+ c000e90:	e5d33000 	ldrb	r3, [r3]
+ c000e94:	e50b310c 	str	r3, [fp, #-268]	; 0xfffffef4
+ c000e98:	e59f3584 	ldr	r3, [pc, #1412]	; c001424 <reversi8+0x74c>
+ c000e9c:	e5d33000 	ldrb	r3, [r3]
+ c000ea0:	e50b3110 	str	r3, [fp, #-272]	; 0xfffffef0
+ c000ea4:	e59f3578 	ldr	r3, [pc, #1400]	; c001424 <reversi8+0x74c>
+ c000ea8:	e5d33000 	ldrb	r3, [r3]
+ c000eac:	e50b3114 	str	r3, [fp, #-276]	; 0xfffffeec
+ c000eb0:	e59f356c 	ldr	r3, [pc, #1388]	; c001424 <reversi8+0x74c>
+ c000eb4:	e5d33000 	ldrb	r3, [r3]
+ c000eb8:	e50b3118 	str	r3, [fp, #-280]	; 0xfffffee8
+ c000ebc:	e59f3560 	ldr	r3, [pc, #1376]	; c001424 <reversi8+0x74c>
+ c000ec0:	e5d33000 	ldrb	r3, [r3]
+ c000ec4:	e50b311c 	str	r3, [fp, #-284]	; 0xfffffee4
+ c000ec8:	e59f3554 	ldr	r3, [pc, #1364]	; c001424 <reversi8+0x74c>
+ c000ecc:	e5d33000 	ldrb	r3, [r3]
+ c000ed0:	e50b3120 	str	r3, [fp, #-288]	; 0xfffffee0
+ c000ed4:	e59f3548 	ldr	r3, [pc, #1352]	; c001424 <reversi8+0x74c>
+ c000ed8:	e5d33000 	ldrb	r3, [r3]
+ c000edc:	e50b3124 	str	r3, [fp, #-292]	; 0xfffffedc
+ c000ee0:	e59f353c 	ldr	r3, [pc, #1340]	; c001424 <reversi8+0x74c>
+ c000ee4:	e5d33000 	ldrb	r3, [r3]
+ c000ee8:	e50b3128 	str	r3, [fp, #-296]	; 0xfffffed8
+ c000eec:	e59f3530 	ldr	r3, [pc, #1328]	; c001424 <reversi8+0x74c>
+ c000ef0:	e5d33000 	ldrb	r3, [r3]
+ c000ef4:	e50b312c 	str	r3, [fp, #-300]	; 0xfffffed4
+ c000ef8:	e59f3524 	ldr	r3, [pc, #1316]	; c001424 <reversi8+0x74c>
+ c000efc:	e5d33000 	ldrb	r3, [r3]
+ c000f00:	e50b3130 	str	r3, [fp, #-304]	; 0xfffffed0
+ c000f04:	e59f3518 	ldr	r3, [pc, #1304]	; c001424 <reversi8+0x74c>
+ c000f08:	e5d33000 	ldrb	r3, [r3]
+ c000f0c:	e50b3134 	str	r3, [fp, #-308]	; 0xfffffecc
+ c000f10:	e59f350c 	ldr	r3, [pc, #1292]	; c001424 <reversi8+0x74c>
+ c000f14:	e5d33000 	ldrb	r3, [r3]
+ c000f18:	e50b3138 	str	r3, [fp, #-312]	; 0xfffffec8
+ c000f1c:	e59f3500 	ldr	r3, [pc, #1280]	; c001424 <reversi8+0x74c>
+ c000f20:	e5d33000 	ldrb	r3, [r3]
+ c000f24:	e50b313c 	str	r3, [fp, #-316]	; 0xfffffec4
+ c000f28:	e59f34f4 	ldr	r3, [pc, #1268]	; c001424 <reversi8+0x74c>
+ c000f2c:	e5d33000 	ldrb	r3, [r3]
+ c000f30:	e50b3140 	str	r3, [fp, #-320]	; 0xfffffec0
+ c000f34:	e59f34e8 	ldr	r3, [pc, #1256]	; c001424 <reversi8+0x74c>
+ c000f38:	e5d33000 	ldrb	r3, [r3]
+ c000f3c:	e50b3144 	str	r3, [fp, #-324]	; 0xfffffebc
+ c000f40:	e59f34dc 	ldr	r3, [pc, #1244]	; c001424 <reversi8+0x74c>
+ c000f44:	e5d33000 	ldrb	r3, [r3]
+ c000f48:	e50b3148 	str	r3, [fp, #-328]	; 0xfffffeb8
+ c000f4c:	e59f34d0 	ldr	r3, [pc, #1232]	; c001424 <reversi8+0x74c>
+ c000f50:	e5d33000 	ldrb	r3, [r3]
+ c000f54:	e50b314c 	str	r3, [fp, #-332]	; 0xfffffeb4
+ c000f58:	e59f34c4 	ldr	r3, [pc, #1220]	; c001424 <reversi8+0x74c>
+ c000f5c:	e5d33000 	ldrb	r3, [r3]
+ c000f60:	e50b3150 	str	r3, [fp, #-336]	; 0xfffffeb0
+ c000f64:	e59f34b8 	ldr	r3, [pc, #1208]	; c001424 <reversi8+0x74c>
+ c000f68:	e5d33000 	ldrb	r3, [r3]
+ c000f6c:	e50b3154 	str	r3, [fp, #-340]	; 0xfffffeac
+ c000f70:	e59f34ac 	ldr	r3, [pc, #1196]	; c001424 <reversi8+0x74c>
+ c000f74:	e5d33000 	ldrb	r3, [r3]
+ c000f78:	e50b3158 	str	r3, [fp, #-344]	; 0xfffffea8
+ c000f7c:	e59f34a0 	ldr	r3, [pc, #1184]	; c001424 <reversi8+0x74c>
+ c000f80:	e5d33000 	ldrb	r3, [r3]
+ c000f84:	e50b315c 	str	r3, [fp, #-348]	; 0xfffffea4
+ c000f88:	e59f3494 	ldr	r3, [pc, #1172]	; c001424 <reversi8+0x74c>
+ c000f8c:	e5d3a000 	ldrb	sl, [r3]
+ c000f90:	e59f348c 	ldr	r3, [pc, #1164]	; c001424 <reversi8+0x74c>
+ c000f94:	e5d37000 	ldrb	r7, [r3]
+ c000f98:	e59f3484 	ldr	r3, [pc, #1156]	; c001424 <reversi8+0x74c>
+ c000f9c:	e5d35000 	ldrb	r5, [r3]
+ c000fa0:	e59f347c 	ldr	r3, [pc, #1148]	; c001424 <reversi8+0x74c>
+ c000fa4:	e5d3e000 	ldrb	lr, [r3]
+ c000fa8:	e59f3474 	ldr	r3, [pc, #1140]	; c001424 <reversi8+0x74c>
+ c000fac:	e5d30000 	ldrb	r0, [r3]
+ c000fb0:	e59f346c 	ldr	r3, [pc, #1132]	; c001424 <reversi8+0x74c>
+ c000fb4:	e5d32000 	ldrb	r2, [r3]
+ c000fb8:	e1a03001 	mov	r3, r1
+ c000fbc:	e54b307c 	strb	r3, [fp, #-124]	; 0xffffff84
+ c000fc0:	e1a0300c 	mov	r3, ip
+ c000fc4:	e54b307b 	strb	r3, [fp, #-123]	; 0xffffff85
+ c000fc8:	e1a03004 	mov	r3, r4
+ c000fcc:	e54b307a 	strb	r3, [fp, #-122]	; 0xffffff86
+ c000fd0:	e1a03006 	mov	r3, r6
+ c000fd4:	e54b3079 	strb	r3, [fp, #-121]	; 0xffffff87
+ c000fd8:	e1a03008 	mov	r3, r8
+ c000fdc:	e54b3078 	strb	r3, [fp, #-120]	; 0xffffff88
+ c000fe0:	e1a03009 	mov	r3, r9
+ c000fe4:	e54b3077 	strb	r3, [fp, #-119]	; 0xffffff89
+ c000fe8:	e51b1090 	ldr	r1, [fp, #-144]	; 0xffffff70
+ c000fec:	e1a03001 	mov	r3, r1
+ c000ff0:	e54b3076 	strb	r3, [fp, #-118]	; 0xffffff8a
+ c000ff4:	e51b1094 	ldr	r1, [fp, #-148]	; 0xffffff6c
+ c000ff8:	e1a03001 	mov	r3, r1
+ c000ffc:	e54b3075 	strb	r3, [fp, #-117]	; 0xffffff8b
+ c001000:	e51b1098 	ldr	r1, [fp, #-152]	; 0xffffff68
+ c001004:	e1a03001 	mov	r3, r1
+ c001008:	e54b3074 	strb	r3, [fp, #-116]	; 0xffffff8c
+ c00100c:	e51b109c 	ldr	r1, [fp, #-156]	; 0xffffff64
+ c001010:	e1a03001 	mov	r3, r1
+ c001014:	e54b3073 	strb	r3, [fp, #-115]	; 0xffffff8d
+ c001018:	e51b10a0 	ldr	r1, [fp, #-160]	; 0xffffff60
+ c00101c:	e1a03001 	mov	r3, r1
+ c001020:	e54b3072 	strb	r3, [fp, #-114]	; 0xffffff8e
+ c001024:	e51b10a4 	ldr	r1, [fp, #-164]	; 0xffffff5c
+ c001028:	e1a03001 	mov	r3, r1
+ c00102c:	e54b3071 	strb	r3, [fp, #-113]	; 0xffffff8f
+ c001030:	e51b10a8 	ldr	r1, [fp, #-168]	; 0xffffff58
+ c001034:	e1a03001 	mov	r3, r1
+ c001038:	e54b3070 	strb	r3, [fp, #-112]	; 0xffffff90
+ c00103c:	e51b10ac 	ldr	r1, [fp, #-172]	; 0xffffff54
+ c001040:	e1a03001 	mov	r3, r1
+ c001044:	e54b306f 	strb	r3, [fp, #-111]	; 0xffffff91
+ c001048:	e51b10b0 	ldr	r1, [fp, #-176]	; 0xffffff50
+ c00104c:	e1a03001 	mov	r3, r1
+ c001050:	e54b306e 	strb	r3, [fp, #-110]	; 0xffffff92
+ c001054:	e51b10b4 	ldr	r1, [fp, #-180]	; 0xffffff4c
+ c001058:	e1a03001 	mov	r3, r1
+ c00105c:	e54b306d 	strb	r3, [fp, #-109]	; 0xffffff93
+ c001060:	e51b10b8 	ldr	r1, [fp, #-184]	; 0xffffff48
+ c001064:	e1a03001 	mov	r3, r1
+ c001068:	e54b306c 	strb	r3, [fp, #-108]	; 0xffffff94
+ c00106c:	e51b10bc 	ldr	r1, [fp, #-188]	; 0xffffff44
+ c001070:	e1a03001 	mov	r3, r1
+ c001074:	e54b306b 	strb	r3, [fp, #-107]	; 0xffffff95
+ c001078:	e51b10c0 	ldr	r1, [fp, #-192]	; 0xffffff40
+ c00107c:	e1a03001 	mov	r3, r1
+ c001080:	e54b306a 	strb	r3, [fp, #-106]	; 0xffffff96
+ c001084:	e51b10c4 	ldr	r1, [fp, #-196]	; 0xffffff3c
+ c001088:	e1a03001 	mov	r3, r1
+ c00108c:	e54b3069 	strb	r3, [fp, #-105]	; 0xffffff97
+ c001090:	e51b10c8 	ldr	r1, [fp, #-200]	; 0xffffff38
+ c001094:	e1a03001 	mov	r3, r1
+ c001098:	e54b3068 	strb	r3, [fp, #-104]	; 0xffffff98
+ c00109c:	e51b10cc 	ldr	r1, [fp, #-204]	; 0xffffff34
+ c0010a0:	e1a03001 	mov	r3, r1
+ c0010a4:	e54b3067 	strb	r3, [fp, #-103]	; 0xffffff99
+ c0010a8:	e51b10d0 	ldr	r1, [fp, #-208]	; 0xffffff30
+ c0010ac:	e1a03001 	mov	r3, r1
+ c0010b0:	e54b3066 	strb	r3, [fp, #-102]	; 0xffffff9a
+ c0010b4:	e51b10d4 	ldr	r1, [fp, #-212]	; 0xffffff2c
+ c0010b8:	e1a03001 	mov	r3, r1
+ c0010bc:	e54b3065 	strb	r3, [fp, #-101]	; 0xffffff9b
+ c0010c0:	e51b10d8 	ldr	r1, [fp, #-216]	; 0xffffff28
+ c0010c4:	e1a03001 	mov	r3, r1
+ c0010c8:	e54b3064 	strb	r3, [fp, #-100]	; 0xffffff9c
+ c0010cc:	e51b10dc 	ldr	r1, [fp, #-220]	; 0xffffff24
+ c0010d0:	e1a03001 	mov	r3, r1
+ c0010d4:	e54b3063 	strb	r3, [fp, #-99]	; 0xffffff9d
+ c0010d8:	e51b10e0 	ldr	r1, [fp, #-224]	; 0xffffff20
+ c0010dc:	e1a03001 	mov	r3, r1
+ c0010e0:	e54b3062 	strb	r3, [fp, #-98]	; 0xffffff9e
+ c0010e4:	e51b10e4 	ldr	r1, [fp, #-228]	; 0xffffff1c
+ c0010e8:	e1a03001 	mov	r3, r1
+ c0010ec:	e54b3061 	strb	r3, [fp, #-97]	; 0xffffff9f
+ c0010f0:	e51b10e8 	ldr	r1, [fp, #-232]	; 0xffffff18
+ c0010f4:	e1a03001 	mov	r3, r1
+ c0010f8:	e54b3060 	strb	r3, [fp, #-96]	; 0xffffffa0
+ c0010fc:	e51b10ec 	ldr	r1, [fp, #-236]	; 0xffffff14
+ c001100:	e1a03001 	mov	r3, r1
+ c001104:	e54b305f 	strb	r3, [fp, #-95]	; 0xffffffa1
+ c001108:	e51b10f0 	ldr	r1, [fp, #-240]	; 0xffffff10
+ c00110c:	e1a03001 	mov	r3, r1
+ c001110:	e54b305e 	strb	r3, [fp, #-94]	; 0xffffffa2
+ c001114:	e51b10f4 	ldr	r1, [fp, #-244]	; 0xffffff0c
+ c001118:	e1a03001 	mov	r3, r1
+ c00111c:	e54b305d 	strb	r3, [fp, #-93]	; 0xffffffa3
+ c001120:	e51b10f8 	ldr	r1, [fp, #-248]	; 0xffffff08
+ c001124:	e1a03001 	mov	r3, r1
+ c001128:	e54b305c 	strb	r3, [fp, #-92]	; 0xffffffa4
+ c00112c:	e51b10fc 	ldr	r1, [fp, #-252]	; 0xffffff04
+ c001130:	e1a03001 	mov	r3, r1
+ c001134:	e54b305b 	strb	r3, [fp, #-91]	; 0xffffffa5
+ c001138:	e51b1100 	ldr	r1, [fp, #-256]	; 0xffffff00
+ c00113c:	e1a03001 	mov	r3, r1
+ c001140:	e54b305a 	strb	r3, [fp, #-90]	; 0xffffffa6
+ c001144:	e51b1104 	ldr	r1, [fp, #-260]	; 0xfffffefc
+ c001148:	e1a03001 	mov	r3, r1
+ c00114c:	e54b3059 	strb	r3, [fp, #-89]	; 0xffffffa7
+ c001150:	e51b1108 	ldr	r1, [fp, #-264]	; 0xfffffef8
+ c001154:	e1a03001 	mov	r3, r1
+ c001158:	e54b3058 	strb	r3, [fp, #-88]	; 0xffffffa8
+ c00115c:	e51b110c 	ldr	r1, [fp, #-268]	; 0xfffffef4
+ c001160:	e1a03001 	mov	r3, r1
+ c001164:	e54b3057 	strb	r3, [fp, #-87]	; 0xffffffa9
+ c001168:	e51b1110 	ldr	r1, [fp, #-272]	; 0xfffffef0
+ c00116c:	e1a03001 	mov	r3, r1
+ c001170:	e54b3056 	strb	r3, [fp, #-86]	; 0xffffffaa
+ c001174:	e51b1114 	ldr	r1, [fp, #-276]	; 0xfffffeec
+ c001178:	e1a03001 	mov	r3, r1
+ c00117c:	e54b3055 	strb	r3, [fp, #-85]	; 0xffffffab
+ c001180:	e51b1118 	ldr	r1, [fp, #-280]	; 0xfffffee8
+ c001184:	e1a03001 	mov	r3, r1
+ c001188:	e54b3054 	strb	r3, [fp, #-84]	; 0xffffffac
+ c00118c:	e51b111c 	ldr	r1, [fp, #-284]	; 0xfffffee4
+ c001190:	e1a03001 	mov	r3, r1
+ c001194:	e54b3053 	strb	r3, [fp, #-83]	; 0xffffffad
+ c001198:	e51b1120 	ldr	r1, [fp, #-288]	; 0xfffffee0
+ c00119c:	e1a03001 	mov	r3, r1
+ c0011a0:	e54b3052 	strb	r3, [fp, #-82]	; 0xffffffae
+ c0011a4:	e51b1124 	ldr	r1, [fp, #-292]	; 0xfffffedc
+ c0011a8:	e1a03001 	mov	r3, r1
+ c0011ac:	e54b3051 	strb	r3, [fp, #-81]	; 0xffffffaf
+ c0011b0:	e51b1128 	ldr	r1, [fp, #-296]	; 0xfffffed8
+ c0011b4:	e1a03001 	mov	r3, r1
+ c0011b8:	e54b3050 	strb	r3, [fp, #-80]	; 0xffffffb0
+ c0011bc:	e51b112c 	ldr	r1, [fp, #-300]	; 0xfffffed4
+ c0011c0:	e1a03001 	mov	r3, r1
+ c0011c4:	e54b304f 	strb	r3, [fp, #-79]	; 0xffffffb1
+ c0011c8:	e51b1130 	ldr	r1, [fp, #-304]	; 0xfffffed0
+ c0011cc:	e1a03001 	mov	r3, r1
+ c0011d0:	e54b304e 	strb	r3, [fp, #-78]	; 0xffffffb2
+ c0011d4:	e51b1134 	ldr	r1, [fp, #-308]	; 0xfffffecc
+ c0011d8:	e1a03001 	mov	r3, r1
+ c0011dc:	e54b304d 	strb	r3, [fp, #-77]	; 0xffffffb3
+ c0011e0:	e51b1138 	ldr	r1, [fp, #-312]	; 0xfffffec8
+ c0011e4:	e1a03001 	mov	r3, r1
+ c0011e8:	e54b304c 	strb	r3, [fp, #-76]	; 0xffffffb4
+ c0011ec:	e51b113c 	ldr	r1, [fp, #-316]	; 0xfffffec4
+ c0011f0:	e1a03001 	mov	r3, r1
+ c0011f4:	e54b304b 	strb	r3, [fp, #-75]	; 0xffffffb5
+ c0011f8:	e51b1140 	ldr	r1, [fp, #-320]	; 0xfffffec0
+ c0011fc:	e1a03001 	mov	r3, r1
+ c001200:	e54b304a 	strb	r3, [fp, #-74]	; 0xffffffb6
+ c001204:	e51b1144 	ldr	r1, [fp, #-324]	; 0xfffffebc
+ c001208:	e1a03001 	mov	r3, r1
+ c00120c:	e54b3049 	strb	r3, [fp, #-73]	; 0xffffffb7
+ c001210:	e51b1148 	ldr	r1, [fp, #-328]	; 0xfffffeb8
+ c001214:	e1a03001 	mov	r3, r1
+ c001218:	e54b3048 	strb	r3, [fp, #-72]	; 0xffffffb8
+ c00121c:	e51b114c 	ldr	r1, [fp, #-332]	; 0xfffffeb4
+ c001220:	e1a03001 	mov	r3, r1
+ c001224:	e54b3047 	strb	r3, [fp, #-71]	; 0xffffffb9
+ c001228:	e51b1150 	ldr	r1, [fp, #-336]	; 0xfffffeb0
+ c00122c:	e1a03001 	mov	r3, r1
+ c001230:	e54b3046 	strb	r3, [fp, #-70]	; 0xffffffba
+ c001234:	e51b1154 	ldr	r1, [fp, #-340]	; 0xfffffeac
+ c001238:	e1a03001 	mov	r3, r1
+ c00123c:	e54b3045 	strb	r3, [fp, #-69]	; 0xffffffbb
+ c001240:	e51b1158 	ldr	r1, [fp, #-344]	; 0xfffffea8
+ c001244:	e1a03001 	mov	r3, r1
+ c001248:	e54b3044 	strb	r3, [fp, #-68]	; 0xffffffbc
+ c00124c:	e51b115c 	ldr	r1, [fp, #-348]	; 0xfffffea4
+ c001250:	e1a03001 	mov	r3, r1
+ c001254:	e54b3043 	strb	r3, [fp, #-67]	; 0xffffffbd
+ c001258:	e1a0300a 	mov	r3, sl
+ c00125c:	e54b3042 	strb	r3, [fp, #-66]	; 0xffffffbe
+ c001260:	e1a03007 	mov	r3, r7
+ c001264:	e54b3041 	strb	r3, [fp, #-65]	; 0xffffffbf
+ c001268:	e1a03005 	mov	r3, r5
+ c00126c:	e54b3040 	strb	r3, [fp, #-64]	; 0xffffffc0
+ c001270:	e1a0300e 	mov	r3, lr
+ c001274:	e54b303f 	strb	r3, [fp, #-63]	; 0xffffffc1
+ c001278:	e1a03000 	mov	r3, r0
+ c00127c:	e54b303e 	strb	r3, [fp, #-62]	; 0xffffffc2
+ c001280:	e1a03002 	mov	r3, r2
+ c001284:	e54b303d 	strb	r3, [fp, #-61]	; 0xffffffc3
         {NO,NO,NO,NO,NO,NO,NO,NO}
     };
 
 
     int done;     // la máquina ha conseguido mover o no
     int move = 0; // el humano ha conseguido mover o no
- c0011f0:	e3a03000 	mov	r3, #0
- c0011f4:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
+ c001288:	e3a03000 	mov	r3, #0
+ c00128c:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
     int blancas, negras; // número de fichas de cada color
     int fin = 0;  // fin vale 1 si el humano no ha podido mover
- c0011f8:	e3a03000 	mov	r3, #0
- c0011fc:	e50b3034 	str	r3, [fp, #-52]	; 0xffffffcc
+ c001290:	e3a03000 	mov	r3, #0
+ c001294:	e50b3034 	str	r3, [fp, #-52]	; 0xffffffcc
                   // (ha introducido un valor de movimiento con algún 8)
                   // y luego la máquina tampoco puede
     uint8_t f, c;    // fila y columna elegidas por la máquina para su movimiento
 
     init_table(tablero, candidatas);
- c001200:	e24b307c 	sub	r3, fp, #124	; 0x7c
- c001204:	e59f0184 	ldr	r0, [pc, #388]	; c001390 <reversi8+0x750>
- c001208:	e1a01003 	mov	r1, r3
- c00120c:	ebfffb87 	bl	c000030 <init_table>
+ c001298:	e24b307c 	sub	r3, fp, #124	; 0x7c
+ c00129c:	e59f0184 	ldr	r0, [pc, #388]	; c001428 <reversi8+0x750>
+ c0012a0:	e1a01003 	mov	r1, r3
+ c0012a4:	ebfffb87 	bl	c0000c8 <init_table>
     while (fin == 0)
- c001210:	ea000051 	b	c00135c <reversi8+0x71c>
+ c0012a8:	ea000051 	b	c0013f4 <reversi8+0x71c>
     {
         move = 0;
- c001214:	e3a03000 	mov	r3, #0
- c001218:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
+ c0012ac:	e3a03000 	mov	r3, #0
+ c0012b0:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
         esperar_mov(&ready);
- c00121c:	e59f0170 	ldr	r0, [pc, #368]	; c001394 <reversi8+0x754>
- c001220:	ebfffc07 	bl	c000244 <esperar_mov>
+ c0012b4:	e59f0170 	ldr	r0, [pc, #368]	; c00142c <reversi8+0x754>
+ c0012b8:	ebfffc07 	bl	c0002dc <esperar_mov>
         // si la fila o columna son 8 asumimos que el jugador no puede mover
         if (((fila) != DIM) && ((columna) != DIM))
- c001224:	e59f316c 	ldr	r3, [pc, #364]	; c001398 <reversi8+0x758>
- c001228:	e5d33000 	ldrb	r3, [r3]
- c00122c:	e3530008 	cmp	r3, #8
- c001230:	0a000022 	beq	c0012c0 <reversi8+0x680>
- c001234:	e59f3160 	ldr	r3, [pc, #352]	; c00139c <reversi8+0x75c>
- c001238:	e5d33000 	ldrb	r3, [r3]
- c00123c:	e3530008 	cmp	r3, #8
- c001240:	0a00001e 	beq	c0012c0 <reversi8+0x680>
+ c0012bc:	e59f316c 	ldr	r3, [pc, #364]	; c001430 <reversi8+0x758>
+ c0012c0:	e5d33000 	ldrb	r3, [r3]
+ c0012c4:	e3530008 	cmp	r3, #8
+ c0012c8:	0a000022 	beq	c001358 <reversi8+0x680>
+ c0012cc:	e59f3160 	ldr	r3, [pc, #352]	; c001434 <reversi8+0x75c>
+ c0012d0:	e5d33000 	ldrb	r3, [r3]
+ c0012d4:	e3530008 	cmp	r3, #8
+ c0012d8:	0a00001e 	beq	c001358 <reversi8+0x680>
         {
             tablero[fila][columna] = FICHA_NEGRA;
- c001244:	e59f314c 	ldr	r3, [pc, #332]	; c001398 <reversi8+0x758>
- c001248:	e5d33000 	ldrb	r3, [r3]
- c00124c:	e1a01003 	mov	r1, r3
- c001250:	e59f3144 	ldr	r3, [pc, #324]	; c00139c <reversi8+0x75c>
- c001254:	e5d33000 	ldrb	r3, [r3]
- c001258:	e59f2130 	ldr	r2, [pc, #304]	; c001390 <reversi8+0x750>
- c00125c:	e1a01181 	lsl	r1, r1, #3
- c001260:	e0813003 	add	r3, r1, r3
- c001264:	e0823003 	add	r3, r2, r3
- c001268:	e3a02002 	mov	r2, #2
- c00126c:	e5c32000 	strb	r2, [r3]
+ c0012dc:	e59f314c 	ldr	r3, [pc, #332]	; c001430 <reversi8+0x758>
+ c0012e0:	e5d33000 	ldrb	r3, [r3]
+ c0012e4:	e1a01003 	mov	r1, r3
+ c0012e8:	e59f3144 	ldr	r3, [pc, #324]	; c001434 <reversi8+0x75c>
+ c0012ec:	e5d33000 	ldrb	r3, [r3]
+ c0012f0:	e59f2130 	ldr	r2, [pc, #304]	; c001428 <reversi8+0x750>
+ c0012f4:	e1a01181 	lsl	r1, r1, #3
+ c0012f8:	e0813003 	add	r3, r1, r3
+ c0012fc:	e0823003 	add	r3, r2, r3
+ c001300:	e3a02002 	mov	r2, #2
+ c001304:	e5c32000 	strb	r2, [r3]
             actualizar_tablero(tablero, fila, columna, FICHA_NEGRA);
- c001270:	e59f3120 	ldr	r3, [pc, #288]	; c001398 <reversi8+0x758>
- c001274:	e5d32000 	ldrb	r2, [r3]
- c001278:	e59f311c 	ldr	r3, [pc, #284]	; c00139c <reversi8+0x75c>
- c00127c:	e5d33000 	ldrb	r3, [r3]
- c001280:	e59f0108 	ldr	r0, [pc, #264]	; c001390 <reversi8+0x750>
- c001284:	e1a01002 	mov	r1, r2
- c001288:	e1a02003 	mov	r2, r3
- c00128c:	e3a03002 	mov	r3, #2
- c001290:	ebfffc91 	bl	c0004dc <actualizar_tablero>
+ c001308:	e59f3120 	ldr	r3, [pc, #288]	; c001430 <reversi8+0x758>
+ c00130c:	e5d32000 	ldrb	r2, [r3]
+ c001310:	e59f311c 	ldr	r3, [pc, #284]	; c001434 <reversi8+0x75c>
+ c001314:	e5d33000 	ldrb	r3, [r3]
+ c001318:	e59f0108 	ldr	r0, [pc, #264]	; c001428 <reversi8+0x750>
+ c00131c:	e1a01002 	mov	r1, r2
+ c001320:	e1a02003 	mov	r2, r3
+ c001324:	e3a03002 	mov	r3, #2
+ c001328:	ebfffc91 	bl	c000574 <actualizar_tablero>
             actualizar_candidatas(candidatas, fila, columna);
- c001294:	e59f30fc 	ldr	r3, [pc, #252]	; c001398 <reversi8+0x758>
- c001298:	e5d32000 	ldrb	r2, [r3]
- c00129c:	e59f30f8 	ldr	r3, [pc, #248]	; c00139c <reversi8+0x75c>
- c0012a0:	e5d33000 	ldrb	r3, [r3]
- c0012a4:	e24b107c 	sub	r1, fp, #124	; 0x7c
- c0012a8:	e1a00001 	mov	r0, r1
- c0012ac:	e1a01002 	mov	r1, r2
- c0012b0:	e1a02003 	mov	r2, r3
- c0012b4:	ebfffd8b 	bl	c0008e8 <actualizar_candidatas>
+ c00132c:	e59f30fc 	ldr	r3, [pc, #252]	; c001430 <reversi8+0x758>
+ c001330:	e5d32000 	ldrb	r2, [r3]
+ c001334:	e59f30f8 	ldr	r3, [pc, #248]	; c001434 <reversi8+0x75c>
+ c001338:	e5d33000 	ldrb	r3, [r3]
+ c00133c:	e24b107c 	sub	r1, fp, #124	; 0x7c
+ c001340:	e1a00001 	mov	r0, r1
+ c001344:	e1a01002 	mov	r1, r2
+ c001348:	e1a02003 	mov	r2, r3
+ c00134c:	ebfffd8b 	bl	c000980 <actualizar_candidatas>
             move = 1;
- c0012b8:	e3a03001 	mov	r3, #1
- c0012bc:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
+ c001350:	e3a03001 	mov	r3, #1
+ c001354:	e50b3030 	str	r3, [fp, #-48]	; 0xffffffd0
         }
 
         // escribe el movimiento en las variables globales fila columna
         done = elegir_mov(candidatas, tablero, &f, &c);
- c0012c0:	e24b107c 	sub	r1, fp, #124	; 0x7c
- c0012c4:	e24b2085 	sub	r2, fp, #133	; 0x85
- c0012c8:	e24b3086 	sub	r3, fp, #134	; 0x86
- c0012cc:	e1a00001 	mov	r0, r1
- c0012d0:	e59f10b8 	ldr	r1, [pc, #184]	; c001390 <reversi8+0x750>
- c0012d4:	ebfffcbe 	bl	c0005d4 <elegir_mov>
- c0012d8:	e50b0038 	str	r0, [fp, #-56]	; 0xffffffc8
+ c001358:	e24b107c 	sub	r1, fp, #124	; 0x7c
+ c00135c:	e24b2085 	sub	r2, fp, #133	; 0x85
+ c001360:	e24b3086 	sub	r3, fp, #134	; 0x86
+ c001364:	e1a00001 	mov	r0, r1
+ c001368:	e59f10b8 	ldr	r1, [pc, #184]	; c001428 <reversi8+0x750>
+ c00136c:	ebfffcbe 	bl	c00066c <elegir_mov>
+ c001370:	e50b0038 	str	r0, [fp, #-56]	; 0xffffffc8
         if (done == -1)
- c0012dc:	e51b3038 	ldr	r3, [fp, #-56]	; 0xffffffc8
- c0012e0:	e3730001 	cmn	r3, #1
- c0012e4:	1a000005 	bne	c001300 <reversi8+0x6c0>
+ c001374:	e51b3038 	ldr	r3, [fp, #-56]	; 0xffffffc8
+ c001378:	e3730001 	cmn	r3, #1
+ c00137c:	1a000005 	bne	c001398 <reversi8+0x6c0>
         {
             if (move == 0)
- c0012e8:	e51b3030 	ldr	r3, [fp, #-48]	; 0xffffffd0
- c0012ec:	e3530000 	cmp	r3, #0
- c0012f0:	1a000019 	bne	c00135c <reversi8+0x71c>
+ c001380:	e51b3030 	ldr	r3, [fp, #-48]	; 0xffffffd0
+ c001384:	e3530000 	cmp	r3, #0
+ c001388:	1a000019 	bne	c0013f4 <reversi8+0x71c>
                 fin = 1;
- c0012f4:	e3a03001 	mov	r3, #1
- c0012f8:	e50b3034 	str	r3, [fp, #-52]	; 0xffffffcc
- c0012fc:	ea000016 	b	c00135c <reversi8+0x71c>
+ c00138c:	e3a03001 	mov	r3, #1
+ c001390:	e50b3034 	str	r3, [fp, #-52]	; 0xffffffcc
+ c001394:	ea000016 	b	c0013f4 <reversi8+0x71c>
         }
         else
         {
             tablero[f][c] = FICHA_BLANCA;
- c001300:	e55b3085 	ldrb	r3, [fp, #-133]	; 0xffffff7b
- c001304:	e1a01003 	mov	r1, r3
- c001308:	e55b3086 	ldrb	r3, [fp, #-134]	; 0xffffff7a
- c00130c:	e59f207c 	ldr	r2, [pc, #124]	; c001390 <reversi8+0x750>
- c001310:	e1a01181 	lsl	r1, r1, #3
- c001314:	e0813003 	add	r3, r1, r3
- c001318:	e0823003 	add	r3, r2, r3
- c00131c:	e3a02001 	mov	r2, #1
- c001320:	e5c32000 	strb	r2, [r3]
+ c001398:	e55b3085 	ldrb	r3, [fp, #-133]	; 0xffffff7b
+ c00139c:	e1a01003 	mov	r1, r3
+ c0013a0:	e55b3086 	ldrb	r3, [fp, #-134]	; 0xffffff7a
+ c0013a4:	e59f207c 	ldr	r2, [pc, #124]	; c001428 <reversi8+0x750>
+ c0013a8:	e1a01181 	lsl	r1, r1, #3
+ c0013ac:	e0813003 	add	r3, r1, r3
+ c0013b0:	e0823003 	add	r3, r2, r3
+ c0013b4:	e3a02001 	mov	r2, #1
+ c0013b8:	e5c32000 	strb	r2, [r3]
             actualizar_tablero(tablero, f, c, FICHA_BLANCA);
- c001324:	e55b2085 	ldrb	r2, [fp, #-133]	; 0xffffff7b
- c001328:	e55b3086 	ldrb	r3, [fp, #-134]	; 0xffffff7a
- c00132c:	e59f005c 	ldr	r0, [pc, #92]	; c001390 <reversi8+0x750>
- c001330:	e1a01002 	mov	r1, r2
- c001334:	e1a02003 	mov	r2, r3
- c001338:	e3a03001 	mov	r3, #1
- c00133c:	ebfffc66 	bl	c0004dc <actualizar_tablero>
+ c0013bc:	e55b2085 	ldrb	r2, [fp, #-133]	; 0xffffff7b
+ c0013c0:	e55b3086 	ldrb	r3, [fp, #-134]	; 0xffffff7a
+ c0013c4:	e59f005c 	ldr	r0, [pc, #92]	; c001428 <reversi8+0x750>
+ c0013c8:	e1a01002 	mov	r1, r2
+ c0013cc:	e1a02003 	mov	r2, r3
+ c0013d0:	e3a03001 	mov	r3, #1
+ c0013d4:	ebfffc66 	bl	c000574 <actualizar_tablero>
             actualizar_candidatas(candidatas, f, c);
- c001340:	e55b2085 	ldrb	r2, [fp, #-133]	; 0xffffff7b
- c001344:	e55b3086 	ldrb	r3, [fp, #-134]	; 0xffffff7a
- c001348:	e24b107c 	sub	r1, fp, #124	; 0x7c
- c00134c:	e1a00001 	mov	r0, r1
- c001350:	e1a01002 	mov	r1, r2
- c001354:	e1a02003 	mov	r2, r3
- c001358:	ebfffd62 	bl	c0008e8 <actualizar_candidatas>
+ c0013d8:	e55b2085 	ldrb	r2, [fp, #-133]	; 0xffffff7b
+ c0013dc:	e55b3086 	ldrb	r3, [fp, #-134]	; 0xffffff7a
+ c0013e0:	e24b107c 	sub	r1, fp, #124	; 0x7c
+ c0013e4:	e1a00001 	mov	r0, r1
+ c0013e8:	e1a01002 	mov	r1, r2
+ c0013ec:	e1a02003 	mov	r2, r3
+ c0013f0:	ebfffd62 	bl	c000980 <actualizar_candidatas>
                   // (ha introducido un valor de movimiento con algún 8)
                   // y luego la máquina tampoco puede
     uint8_t f, c;    // fila y columna elegidas por la máquina para su movimiento
 
     init_table(tablero, candidatas);
     while (fin == 0)
- c00135c:	e51b3034 	ldr	r3, [fp, #-52]	; 0xffffffcc
- c001360:	e3530000 	cmp	r3, #0
- c001364:	0affffaa 	beq	c001214 <reversi8+0x5d4>
+ c0013f4:	e51b3034 	ldr	r3, [fp, #-52]	; 0xffffffcc
+ c0013f8:	e3530000 	cmp	r3, #0
+ c0013fc:	0affffaa 	beq	c0012ac <reversi8+0x5d4>
             tablero[f][c] = FICHA_BLANCA;
             actualizar_tablero(tablero, f, c, FICHA_BLANCA);
             actualizar_candidatas(candidatas, f, c);
         }
     }
     contar(tablero, &blancas, &negras);
- c001368:	e24b2080 	sub	r2, fp, #128	; 0x80
- c00136c:	e24b3084 	sub	r3, fp, #132	; 0x84
- c001370:	e59f0018 	ldr	r0, [pc, #24]	; c001390 <reversi8+0x750>
- c001374:	e1a01002 	mov	r1, r2
- c001378:	e1a02003 	mov	r2, r3
- c00137c:	ebfffd1a 	bl	c0007ec <contar>
+ c001400:	e24b2080 	sub	r2, fp, #128	; 0x80
+ c001404:	e24b3084 	sub	r3, fp, #132	; 0x84
+ c001408:	e59f0018 	ldr	r0, [pc, #24]	; c001428 <reversi8+0x750>
+ c00140c:	e1a01002 	mov	r1, r2
+ c001410:	e1a02003 	mov	r2, r3
+ c001414:	ebfffd1a 	bl	c000884 <contar>
 }
- c001380:	e24bd028 	sub	sp, fp, #40	; 0x28
- c001384:	e89d6ff0 	ldm	sp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, lr}
- c001388:	e12fff1e 	bx	lr
- c00138c:	0c0013a0 	.word	0x0c0013a0
- c001390:	0c0013f8 	.word	0x0c0013f8
- c001394:	0c00143a 	.word	0x0c00143a
- c001398:	0c001438 	.word	0x0c001438
- c00139c:	0c001439 	.word	0x0c001439
+ c001418:	e24bd028 	sub	sp, fp, #40	; 0x28
+ c00141c:	e89d6ff0 	ldm	sp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, lr}
+ c001420:	e12fff1e 	bx	lr
+ c001424:	0c001438 	.word	0x0c001438
+ c001428:	0c001490 	.word	0x0c001490
+ c00142c:	0c0014d2 	.word	0x0c0014d2
+ c001430:	0c0014d0 	.word	0x0c0014d0
+ c001434:	0c0014d1 	.word	0x0c0014d1

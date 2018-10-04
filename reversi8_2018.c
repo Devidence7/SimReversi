@@ -203,7 +203,7 @@ int patron_volteo(uint8_t tablero[][DIM], int *longitud, uint8_t FA, uint8_t CA,
     if ((posicion_valida == 1) && (casilla != color))
     {
         *longitud = *longitud + 1;
-        patron = patron_volteo(tablero, longitud, FA, CA, SF, SC, color);
+        patron = patron_volteo_arm_c(tablero, longitud, FA, CA, SF, SC, color);
         //printf("longitud: %d \n", *longitud);
         //printf("fila: %d; columna: %d \n", FA, CA);
         return patron;

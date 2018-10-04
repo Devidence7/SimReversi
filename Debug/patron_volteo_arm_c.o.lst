@@ -3,24 +3,89 @@
    0              	
    0              	
    0              	
-   2              	@Prologo
-   3 0000 0DC0A0E1 	MOV IP,SP
-   4 0004 F0DF2DE9 	STMDB sp!, {r4-r10,FP,IP,LR,PC}
-   5 0008 04B04CE2 	SUB FP,IP,#4
-   6              	
-   7              	patron_volteo_arm_c:
+   2              	.extern ficha_valida
+   3              	patron_volteo_arm_c:
+   4              	@Prologo
+   5 0000 0DC0A0E1 	MOV IP,SP
+   6 0004 F0DF2DE9 	STMDB sp!, {r4-r10,FP,IP,LR,PC}
+   7 0008 04B04CE2 	SUB FP,IP,#4
    8              	
-   9              	
-  10              	
-  11              	@Epilogo
-  12 000c 0CD04BE2 	SUB SP, FP, #12
-  13 0010 F0AF9DE8 	LDMIA SP, {r4-r10,FP,SP,PC}
-  14              	
-  15              	@Fin
-  16              	.end
+   9 000c 0040A0E1 	mov r4, r0			@tablero
+  10 0010 0150A0E1 	mov r5, r1			@r5=*longitud
+  11 0014 0260A0E1 	mov r6, r2			@r6=FA
+  12 0018 0370A0E1 	mov r7, r3			@r7=CA
+  13              	
+  14              	@cargar los parametros r4-r6 con lo argumentos restantes
+  15 001c 00809CE5 	ldr r8, [IP]		@r8=SF
+  16 0020 04909CE5 	ldr r9, [IP, #4]	@r9=SC
+  17 0024 08A09CE5 	ldr r10, [IP, #8]	@r10=color
+  18              	
+  19 0028 086086E0 	add r6, r6, r8		@FA = FA + SF
+  20 002c 097087E0 	add r7, r7, r9		@CA = CA + SC
+  21              	
+  22 0030 FF6006E2 	and r6, r6, #0xFF
+  23 0034 FF7007E2 	and r7, r7, #0xFF
+  24              	
+  25              	@Llamada a ficha_valida (primero paso de parametros)
+  26              	@a1=tablero (ya esta en r0)
+  27 0038 0610A0E1 	mov r1, r6 			@a2=FA
+  28 003c 0720A0E1 	mov r2, r7			@a3=CA
+  29 0040 04D04DE2 	sub sp, sp, #4		@dejamos un espacio en la pila para posicion_valida
+  30 0044 0D30A0E1 	mov r3, sp			@r3=&posicion_valida
+  31 0048 FEFFFFEB 	bl ficha_valida		@devuelve en r0 el valor de "casilla"
+  32              	
+  33 004c 00309DE5 	ldr r3, [sp]		@guardamos en r3 el contenido de posicion_valida
+  34 0050 04D08DE2 	add sp, sp, #4		@volvemos a dejar libre el hueco en la pila
+  35 0054 010053E3 	cmp r3, #1			@posicion_valida==1?
+  36 0058 1000001A 	bne	pos_invalida
+  37 005c 0A0050E1 	cmp r0, r10			@casilla==color?
+  38 0060 0600000A 	beq casilla_igual_color
+  39 0064 0050A0E1 	mov r5, r0 			@(posicion_valida == 1) && (casilla != color)
+  40              	
+  41 0068 000055E3 	cmp r5, #0
+  42 006c 0100001A 	bne patron_encontrado
+  43 0070 0000A0E3 	mov r0, #0
+  44 0074 0A0000EB 	bl fin_patron_volteo_arm_c
+  45              	
+  46              	patron_encontrado:
+  47 0078 0100A0E3 	mov r0, #1
+  48 007c 080000EB 	bl fin_patron_volteo_arm_c
+  49              	
+  50              	
+  51              	casilla_igual_color:
+  52              	@(posicion_valida == 1) && (casilla == color)
+  53 0080 000095E5 	ldr r0, [r5]
+  54 0084 010080E2 	add r0, r0, #1
+  55 0088 000085E5 	str r0, [r5]
+  56              	
+  57 008c 0400A0E1 	mov r0, r4
+  58 0090 0510A0E1 	mov r1, r5
+  59 0094 0620A0E1 	mov r2, r6
+  60 0098 0730A0E1 	mov r3, r7
+  61 009c FEFFFFEB 	bl patron_volteo_arm_c
+  62              	
+  63              	
+  64              	pos_invalida:
+  65              	@(posicion_valida != 1)
+  66 00a0 0000A0E3 	mov r0, #0			@la funcion devuelve 0 (patron no encontrado)
+  67              	
+  68              	
+  69              	
+  70              	fin_patron_volteo_arm_c:
+  71              	@Epilogo
+  72 00a4 28D04BE2 	SUB SP, FP, #40
+  73 00a8 F0AF9DE8 	LDMIA SP, {r4-r10,FP,SP,PC}
+  74              	
+  75              	@Fin
+  76              	.end
 DEFINED SYMBOLS
-../patron_volteo_arm_c.asm:7      .text:0000000c patron_volteo_arm_c
-../patron_volteo_arm_c.asm:3      .text:00000000 $a
+../patron_volteo_arm_c.asm:3      .text:00000000 patron_volteo_arm_c
+../patron_volteo_arm_c.asm:5      .text:00000000 $a
+../patron_volteo_arm_c.asm:64     .text:000000a0 pos_invalida
+../patron_volteo_arm_c.asm:51     .text:00000080 casilla_igual_color
+../patron_volteo_arm_c.asm:46     .text:00000078 patron_encontrado
+../patron_volteo_arm_c.asm:70     .text:000000a4 fin_patron_volteo_arm_c
                    .debug_aranges:0000000c $d
 
-NO UNDEFINED SYMBOLS
+UNDEFINED SYMBOLS
+ficha_valida

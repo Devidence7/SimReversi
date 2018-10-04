@@ -15,64 +15,64 @@ LOAD c:/program files/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/ar
 END GROUP
                 0x0c000000                . = 0xc000000
 
-.text           0x0c000000     0x13a0
+.text           0x0c000000     0x1438
  *(.text)
  .text          0x0c000000       0x1c ./init_b_2018.o
                 0x0c000000                start
- .text          0x0c00001c       0x14 ./patron_volteo_arm_c.o
-                0x0c000028                patron_volteo_arm_c
- .text          0x0c000030     0x1370 ./reversi8_2018.o
-                0x0c000030                init_table
-                0x0c000244                esperar_mov
-                0x0c000284                ficha_valida
-                0x0c000338                patron_volteo
-                0x0c00044c                voltear
-                0x0c0004dc                actualizar_tablero
-                0x0c0005d4                elegir_mov
-                0x0c0007ec                contar
-                0x0c0008e8                actualizar_candidatas
-                0x0c000c40                reversi8
-                0x0c0013a0                _bdata = .
+ .text          0x0c00001c       0xac ./patron_volteo_arm_c.o
+                0x0c00001c                patron_volteo_arm_c
+ .text          0x0c0000c8     0x1370 ./reversi8_2018.o
+                0x0c0000c8                init_table
+                0x0c0002dc                esperar_mov
+                0x0c00031c                ficha_valida
+                0x0c0003d0                patron_volteo
+                0x0c0004e4                voltear
+                0x0c000574                actualizar_tablero
+                0x0c00066c                elegir_mov
+                0x0c000884                contar
+                0x0c000980                actualizar_candidatas
+                0x0c000cd8                reversi8
+                0x0c001438                _bdata = .
 
-.glue_7         0x0c0013a0        0x0
+.glue_7         0x0c001438        0x0
  .glue_7        0x00000000        0x0 linker stubs
 
-.glue_7t        0x0c0013a0        0x0
+.glue_7t        0x0c001438        0x0
  .glue_7t       0x00000000        0x0 linker stubs
 
-.vfp11_veneer   0x0c0013a0        0x0
+.vfp11_veneer   0x0c001438        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x0c0013a0        0x0
+.v4_bx          0x0c001438        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
-.data           0x0c0013a0        0x0
+.data           0x0c001438        0x0
  *(.data)
- .data          0x0c0013a0        0x0 ./init_b_2018.o
- .data          0x0c0013a0        0x0 ./patron_volteo_arm_c.o
- .data          0x0c0013a0        0x0 ./reversi8_2018.o
-                0x0c0013a0                _edata = .
+ .data          0x0c001438        0x0 ./init_b_2018.o
+ .data          0x0c001438        0x0 ./patron_volteo_arm_c.o
+ .data          0x0c001438        0x0 ./reversi8_2018.o
+                0x0c001438                _edata = .
 
-.rodata         0x0c0013a0       0x58
+.rodata         0x0c001438       0x58
  *(.rodata)
- .rodata        0x0c0013a0       0x58 ./reversi8_2018.o
-                0x0c0013a0                NO
-                0x0c0013a1                SI
-                0x0c0013a2                CASILLA_OCUPADA
-                0x0c0013e8                vSF
-                0x0c0013f0                vSC
-                0x0c0013f8                _bbss = .
+ .rodata        0x0c001438       0x58 ./reversi8_2018.o
+                0x0c001438                NO
+                0x0c001439                SI
+                0x0c00143a                CASILLA_OCUPADA
+                0x0c001480                vSF
+                0x0c001488                vSC
+                0x0c001490                _bbss = .
 
-.bss            0x0c0013f8       0x48
+.bss            0x0c001490       0x48
  *(.bss)
- .bss           0x0c0013f8        0x0 ./init_b_2018.o
- .bss           0x0c0013f8        0x0 ./patron_volteo_arm_c.o
- .bss           0x0c0013f8       0x48 ./reversi8_2018.o
-                0x0c0013f8                tablero
-                0x0c001438                fila
-                0x0c001439                columna
-                0x0c00143a                ready
-                0x0c001440                _ebss = .
+ .bss           0x0c001490        0x0 ./init_b_2018.o
+ .bss           0x0c001490        0x0 ./patron_volteo_arm_c.o
+ .bss           0x0c001490       0x48 ./reversi8_2018.o
+                0x0c001490                tablero
+                0x0c0014d0                fila
+                0x0c0014d1                columna
+                0x0c0014d2                ready
+                0x0c0014d8                _ebss = .
 OUTPUT(SimReversi.elf elf32-littlearm)
 
 .ARM.attributes
@@ -88,10 +88,10 @@ OUTPUT(SimReversi.elf elf32-littlearm)
  .comment       0x00000000       0x2a ./reversi8_2018.o
                                  0x2b (size before relaxing)
 
-.debug_line     0x00000000      0x359
+.debug_line     0x00000000      0x37f
  .debug_line    0x00000000       0x47 ./init_b_2018.o
- .debug_line    0x00000047       0x4c ./patron_volteo_arm_c.o
- .debug_line    0x00000093      0x2c6 ./reversi8_2018.o
+ .debug_line    0x00000047       0x72 ./patron_volteo_arm_c.o
+ .debug_line    0x000000b9      0x2c6 ./reversi8_2018.o
 
 .debug_info     0x00000000      0x7d0
  .debug_info    0x00000000       0x6a ./init_b_2018.o
