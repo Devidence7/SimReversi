@@ -12,6 +12,7 @@ mov r6, r2			@r6=FA
 mov r7, r3			@r7=CA
 
 @cargar los parametros r4-r6 con lo argumentos restantes
+																			@DEBEMOS LIMPIAR LA PILAAAAAAA!!!
 ldr r8, [IP]		@r8=SF
 ldr r9, [IP, #4]	@r9=SC
 ldr r10, [IP, #8]	@r10=color
@@ -37,7 +38,7 @@ cmp r3, #1			@posicion_valida==1?
 bne	pos_invalida
 cmp r0, r10			@casilla==color?
 beq casilla_igual_color
-mov r5, r0
+@mov r5, r0
 
 @(posicion_valida == 1) && (casilla != color)
 ldr r0, [r5]
@@ -48,6 +49,7 @@ mov r0, r4	@tablero
 mov r1, r5	@*longitud
 mov r2, r6	@FA
 mov r3, r7	@CA
+STMDB sp!, {r8-r10}
 bl patron_volteo_arm_c
 b fin_patron_volteo_arm_c
 

@@ -8,10 +8,12 @@ C_SRCS += \
 
 ASM_SRCS += \
 ../init_b_2018.asm \
+../patron_volteo_arm_arm.asm \
 ../patron_volteo_arm_c.asm 
 
 OBJS += \
 ./init_b_2018.o \
+./patron_volteo_arm_arm.o \
 ./patron_volteo_arm_c.o \
 ./reversi8_2018.o 
 
@@ -20,6 +22,7 @@ C_DEPS += \
 
 ASM_DEPS += \
 ./init_b_2018.d \
+./patron_volteo_arm_arm.d \
 ./patron_volteo_arm_c.d 
 
 

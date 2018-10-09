@@ -14,6 +14,7 @@ mov r6, r2			@r6=FA
 mov r7, r3			@r7=CA
 
 @cargar los parametros r4-r6 con lo argumentos restantes
+																			@DEBEMOS LIMPIAR LA PILAAAAAAA!!!
 ldr r8, [IP]		@r8=SF
 ldr r9, [IP, #4]	@r9=SC
 ldr r10, [IP, #8]	@r10=color
@@ -45,7 +46,6 @@ beq pos_invalida @if NOT (tablero[f][c] != CASILLA_VACIA)
 
 cmp r0, r10			@casilla==color?
 beq casilla_igual_color
-mov r5, r0
 
 @(posicion_valida == 1) && (casilla != color)
 ldr r0, [r5]
@@ -56,24 +56,25 @@ mov r0, r4	@tablero
 mov r1, r5	@*longitud
 mov r2, r6	@FA
 mov r3, r7	@CA
-bl patron_volteo_arm_c
-b fin_patron_volteo_arm_c
+STMDB sp!, {r8-r10}
+bl patron_volteo_arm_arm
+b fin_patron_volteo_arm_arm
 
 patron_encontrado:
 mov r0, #1	@la funcion devuelve 1 (patron encontrado)
-b fin_patron_volteo_arm_c
+b fin_patron_volteo_arm_arm
 
 casilla_igual_color:
 @(posicion_valida == 1) && (casilla == color)
 ldr r0, [r5]
 cmp r0, #0
-bne patron_encontrado
+bgt patron_encontrado
 
 pos_invalida:
 @(posicion_valida != 1)
 mov r0, #0			@la funcion devuelve 0 (patron no encontrado)
 
-fin_patron_volteo_arm_c:
+fin_patron_volteo_arm_arm:
 @Epilogo
 SUB SP, FP, #40
 LDMIA SP, {r4-r10,FP,SP,PC}
