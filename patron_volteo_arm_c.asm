@@ -49,16 +49,17 @@ mov r1, r5	@*longitud
 mov r2, r6	@FA
 mov r3, r7	@CA
 bl patron_volteo_arm_c
-bl fin_patron_volteo_arm_c
+b fin_patron_volteo_arm_c
 
 patron_encontrado:
 mov r0, #1	@la funcion devuelve 1 (patron encontrado)
-bl fin_patron_volteo_arm_c
+b fin_patron_volteo_arm_c
 
 casilla_igual_color:
 @(posicion_valida == 1) && (casilla == color)
-cmp r5, #0
-bne patron_encontrado
+ldr r0, [r5]
+cmp r0, #0
+bgt patron_encontrado
 
 pos_invalida:
 @(posicion_valida != 1)

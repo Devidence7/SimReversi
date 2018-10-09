@@ -205,7 +205,7 @@ int patron_volteo(uint8_t tablero[][DIM], int *longitud, uint8_t FA, uint8_t CA,
     if ((posicion_valida == 1) && (casilla != color))
     {
         *longitud = *longitud + 1;
-        patron = patron_volteo_arm_arm(tablero, longitud, FA, CA, SF, SC, color);
+        patron = patron_volteo(tablero, longitud, FA, CA, SF, SC, color);
         //printf("longitud: %d \n", *longitud);
         //printf("fila: %d; columna: %d \n", FA, CA);
         return patron;
@@ -264,7 +264,8 @@ int actualizar_tablero(uint8_t tablero[][DIM], uint8_t f, uint8_t c, uint8_t col
         SC = vSC[i];
         // flip: numero de fichas a voltear
         flip = 0;
-        patron = patron_volteo_arm_arm(tablero, &flip, f, c, SF, SC, color);
+        patron = patron_volteo(tablero, &flip, f, c, SF, SC, color);
+        patron_volteo_test(tablero, &flip, f, c, SF, SC, color);
         //printf("Flip: %d \n", flip);
         if (patron == PATRON_ENCONTRADO )
         {
@@ -315,7 +316,8 @@ int elegir_mov(uint8_t candidatas[][DIM], uint8_t tablero[][DIM], uint8_t *f, ui
 
                         // nos dice qué hay que voltear en cada dirección
                         longitud = 0;
-                        patron = patron_volteo_arm_arm(tablero, &longitud, i, j, SF, SC, FICHA_BLANCA);
+                        patron = patron_volteo(tablero, &longitud, i, j, SF, SC, FICHA_BLANCA);
+                        patron_volteo_test(tablero, &longitud, i, j, SF, SC, FICHA_BLANCA);
                         //  //printf("%d ", patron);
                         if (patron == PATRON_ENCONTRADO)
                         {
@@ -401,7 +403,29 @@ void actualizar_candidatas(uint8_t candidatas[][DIM], uint8_t f, uint8_t c)
 }
 
 
+void patron_volteo_test(uint8_t tablero[][DIM], int *longitud, uint8_t FA, uint8_t CA, uint8_t SF, uint8_t SC, uint8_t color)
+{
+	int longitudAux=*longitud;
+	int longitudAux2=*longitud;
+	int encontrado=patron_volteo(tablero, longitud, FA, CA, SF, SC, color);
+	int encontradoAux=patron_volteo_arm_c(tablero, &longitudAux, FA, CA, SF, SC, color);
 
+	if (encontrado!=encontradoAux){
+		while(1);	//valor de la funcion devuelto por patron_volteo_arm_c no coincide
+	}
+	if(*longitud!=longitudAux){
+		while(1);	//valor de longitud devuelto por patron_volteo_arm_c no coincide
+	}
+
+	encontradoAux=patron_volteo_arm_arm(tablero, &longitudAux2, FA, CA, SF, SC, color);
+
+	if (encontrado!=encontradoAux){
+		while(1);	//valor de la funcion devuelto por patron_volteo_arm_arm no coincide
+	}
+	if(*longitud!=longitudAux2){
+		while(1);	//valor de longitud devuelto por patron_volteo_arm_arm no coincide
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Proceso principal del juego
