@@ -35,14 +35,14 @@ cmp r7, #DIM
 bge pos_invalida	@if NOT (CA<DIM)
 cmp r7, #0
 blt pos_invalida	@if NOT (CA>=0)
-
-@falta ultima parte del if y su contenido
-
-
+mov r1, #DIM	@r1=numero de casillas por fila (DIM)
+mul r1, r6, r1	@r1=fila*DIM
+add r1, r1, r7	@r1=(fila*DIM)+columna
+ldrb r0, [r4, r1]	@cargar en r0 el contenido de la casilla
+cmp r0, #0
+beq pos_invalida @if NOT (tablero[f][c] != CASILLA_VACIA)
 @fin de funcion incrustada ficha_valida
 
-@cmp r3, #1			@posicion_valida==1?
-@bne	pos_invalida
 cmp r0, r10			@casilla==color?
 beq casilla_igual_color
 mov r5, r0
